@@ -1,0 +1,17 @@
+{
+	"short_name": "laundrylab",
+	"name": "laundrylab",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "logoIcon.png",
+			"type": "image/png",
+			"sizes": "144x144"
+		}
+	],
+	"background-color": "#FFFFFF",
+	"display": "standalone",
+	"scope": "/",
+	"theme_color": "#FFFFFF",
+	"description": "Laundry Lab"
+}
