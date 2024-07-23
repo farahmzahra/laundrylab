@@ -267,7 +267,7 @@
 
 	async function saveNewAddress(newAddress) {
 	    const token = localStorage.getItem('token');
-	    const idAdmin = localStorage.getItem('id'); 
+	    const email = localStorage.getItem('email'); 
 
 	    try {
 	        const formData = new FormData();
@@ -281,7 +281,7 @@
 
 	        const response = await ApiController({
 		        method: 'PUT',
-		        endpoint: `adminRegisterById/${idAdmin}`,
+		        endpoint: `adminRegisterById/${email}`,
 		        token: token,
 		        datas: formData,
 		        sendForm: true

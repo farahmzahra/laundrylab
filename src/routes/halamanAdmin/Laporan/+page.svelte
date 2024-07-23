@@ -1,140 +1,3 @@
-<!-- <script>
-    import { onMount } from "svelte";
-    import flatpickr from "flatpickr";
-    import "flatpickr/dist/flatpickr.css";
-    import Chart from "chart.js/auto";
-    import { jsPDF } from "jspdf";
-    import logo from '$lib/images/logo-admin.png';
-    import profil from '$lib/images/profil-logo.png';
-    import AdminNavbar from '../../AdminNavbar.svelte';
-    import Input from '$lib/components/input.svelte';
-    import Button from '$lib/components/button.svelte';
-    import ApiController from '../../ApiController.js';
-
-    let startDate = "";
-    let endDate = "";
-    let revenue = "Rp3.500.000";
-    let chart;
-    let chartData = [200000, 300000, 450000, 600000, 500000, 700000, 900000, 800000, 650000, 500000, 200000, 300000, 450000, 600000, 500000, 700000, 900000, 800000, 650000, 500000, 200000, 300000, 450000, 600000, 500000, 700000, 900000, 800000, 650000, 500000, 200000, 300000, 450000, 600000, 500000, 700000, 900000, 800000, 650000, 500000, 200000, 300000, 450000, 600000, 500000, 700000, 900000, 800000, 650000, 500000];
-
-    onMount(async () => {
-        const token = localStorage.getItem("token");
-        const email = localStorage.getItem("email");
-
-        try {
-            const response = await ApiController({ 
-                method: 'GET', 
-                endpoint: `getPesananByEmailLaundry/${email}`, 
-                token: token
-            });
-
-            if (response && response.data && response.data.success) {
-                let allOrder = response.data.orders;
-                for (var i = allOrder.length - 1; i >= 0; i--) {
-                    allOrder[i].totalBayar
-                }
-              } else {
-                console.error('Failed to fetch order:', response ? response.data.error : 'No response from server');
-            }
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-        }
-
-        flatpickr("#startDate", {
-            dateFormat: "d M Y",
-            onChange: (selectedDates) => {
-                startDate = selectedDates[0].toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-            }
-        });
-
-        flatpickr("#endDate", {
-            dateFormat: "d M Y",
-            onChange: (selectedDates) => {
-                endDate = selectedDates[0].toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-            }
-        });
-
-        const ctx = document.getElementById("revenueChart").getContext("2d");
-        chart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: Array.from({ length: chartData.length }, (_, i) => i + 1),
-                datasets: [{
-                    label: "Pendapatan",
-                    data: chartData,
-                    borderColor: "red",
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { display: true, title: { display: true, text: "Hari" } },
-                    y: { display: true, title: { display: true, text: "Pendapatan" } }
-                }
-            }
-        });
-    });
-
-    function printPDF() {
-        if (!startDate || !endDate) {
-            alert('Pilih Tanggal Terlebih Dahulu');
-            return;
-        }
-
-        const doc = new jsPDF();
-
-        doc.text(`Start Date: ${startDate}`, 10, 10);
-        doc.text(`End Date: ${endDate}`, 10, 20);
-        doc.text(`Total Accumulated Income: ${revenue}`, 10, 30);
-
-        const canvas = document.getElementById('revenueChart');
-        canvas.toBlob(function (blob) {
-            const url = URL.createObjectURL(blob);
-            const img = new Image();
-            img.src = url;
-            img.onload = function () {
-                doc.addImage(img, 'JPEG', 10, 40, 180, 100);
-
-                const filename = `Laporan_${startDate.replace(/[^a-zA-Z0-9]/g, '')}_to_${endDate.replace(/[^a-zA-Z0-9]/g, '')}.pdf`;
-
-                doc.save(filename);
-            };
-        });
-    }
-</script>
-
-<svelte:head>
-    <title>LaundryLab</title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</svelte:head>
-
-<div class="card-container">
-    <div class="header">
-        <img src="{logo}" class="logo">
-        <img src="{profil}">
-    </div><br>
-    <div class="report-header">Laporan</div>
-    <div class="card-row-spaceless">
-         <div class="space-style">
-            <Input type="text" id="startDate" placeholder="Start Date" readonly bind:value={startDate} style="width: 150px; margin-right: 20px;" />
-        </div>
-        <div class="space-style">
-            <Input type="text" id="endDate" placeholder="End Date" readonly bind:value={endDate}  style="width: 150px;" />
-        </div>
-    </div>
-    <div class="report-revenue">Akumulasi Pendapatan<br>{revenue}</div>
-    <div class="report-chart">
-        <canvas id="revenueChart"></canvas>
-    </div>
-    <div class="centered-items">
-        <Button label="Cetak PDF" on:click={printPDF} />
-    </div>
-    <AdminNavbar />
-</div> -->
-
 <script>
     import { onMount } from "svelte";
     import flatpickr from "flatpickr";
@@ -154,6 +17,7 @@
     let chart;
     let chartData = [];
     let allOrders = [];
+    let orderDate = '';
 
     onMount(async () => {
         const token = localStorage.getItem("token");
@@ -223,8 +87,10 @@
         const start = new Date(startDate);
         const end = new Date(endDate);
         let filteredOrders = allOrders.filter(order => {
-            const orderDate = new Date(order.statusPesanan[0].tanggal);
+            orderDate = new Date(order.statusPesanan[6].tanggal); //ini emang statusPesanan[0]?????????
             return orderDate >= start && orderDate <= end;
+
+        console.log(orderDate);
         });
 
         let totalRevenue = 0;
@@ -307,10 +173,10 @@
     <div class="report-header">Laporan</div>
     <div class="card-row-spaceless">
         <div class="space-style">
-            <Input type="text" id="startDate" placeholder="Start Date" readonly bind:value={startDate} style="width: 150px; margin-right: 20px;" />
+            <Input type="text" id="startDate" placeholder="Start Date" bind:value={startDate} style="width: 150px; margin-right: 20px;" />
         </div>
         <div class="space-style">
-            <Input type="text" id="endDate" placeholder="End Date" readonly bind:value={endDate}  style="width: 150px;" />
+            <Input type="text" id="endDate" placeholder="End Date" bind:value={endDate}  style="width: 150px;" />
         </div>
     </div>
     <div class="report-revenue">Akumulasi Pendapatan<br>{revenue}</div>

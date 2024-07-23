@@ -99,7 +99,7 @@
 		</div>
 		<br>
 		<div class="centered-items">
-            <div class="profile-img"><img src={"/uploads/" + form.profilPict} alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
+            <div class="profile-img"><img src={form.profilPict} alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
         </div><br>
         <div>
         	<div class="card-row">
