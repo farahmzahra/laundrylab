@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import Input from '$lib/components/Input.svelte';
-  import Button from '$lib/components/Button.svelte';
+  import Input from '$lib/components/input.svelte';
+  import Button from '$lib/components/button.svelte';
 
   export let operasionalForm = {
     days: [
