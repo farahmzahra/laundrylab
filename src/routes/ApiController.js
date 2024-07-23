@@ -1,7 +1,7 @@
 import axios from "axios"
 
 // const startUrl = "http://127.0.0.1:5000/"
-const startUrl = "http://laundrylab.pocari.id/"
+const startUrl = "https://laundrylab.pocari.id/"
 
 const ApiController = async info => {
     const AuthStr = info.token ? `Bearer ${info.token}` : '';
