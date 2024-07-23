@@ -1,8 +1,8 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte';
   import trashbin from '$lib/images/trash.png';
-  import Input from '$lib/components/Input.svelte';
-  import Button from '$lib/components/Button.svelte';
+  import Input from '$lib/components/input.svelte';
+  import Button from '$lib/components/button.svelte';
 
   export let pesananForm = {
     idPesanan: '',
