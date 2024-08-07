@@ -635,6 +635,13 @@ span {
   display: block;
 }
 
+.qris-image {
+  width: 50%;
+  height: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 .payment-image {
   width: 200px;
   height: 200px;

@@ -57,7 +57,7 @@
 	    noRekBank: '',
 	    qrqris: '',
 	    catatan: '',
-	    upload_path: '/Users/macbook/laundrylab/static/uploads/qr'
+	    upload_path: '/Users/macbook/laundrylab/static/uploads'
 	}
 
 	let operasionalForm = {
@@ -201,7 +201,7 @@
 	      console.log(longitude);
 	      console.log(latitude);
 	    } catch (error) {
-	      alert("Location not found");
+	      alert("Lokasi Tidak Ditemukan!");
 	    }
 	  }
 
@@ -242,17 +242,17 @@
 	      if (response && response.data && response.data.success) {
 	        form = { ...updatedForm };
 	        showEditProfilePopup = false;
-	        alert('successful');
+	        alert('Data Berhasil Diperbarui!');
 	        window.location.reload();
 	        console.log(updatedForm.fullName);
 	        console.log(updatedForm.profilPict);
 	      } else {
 	        console.error('Failed to update profile:', response ? response.data.error : 'No response from server');
-	        alert('Failed to update profile');
+	        alert('Terjadi kesalahan saat data diperbarui');
 	      }
 	    } catch (error) {
 	      console.error('Error updating profile:', error);
-	      alert('Error updating profile');
+	      alert('Terjadi kesalahan saat data diperbarui');
 	    }
 	}
 
@@ -292,15 +292,15 @@
 	            form = { ...form, ...newAddress };
 	            showAddAlamatPopup = false;
 	            showEditAlamatPopup = false;
-	            alert('Address updated successfully');    
+	            alert('Data Berhasil Diperbarui!');    
 	        	window.location.reload();
 	            console.log(addressExists);
 	        } else {
-	            alert('Failed to update address: ' + result.message);
+	            alert('Terjadi kesalahan saat diperbarui: ' + result.message);
 	        }
 	    } catch (error) {
 	        console.error('Error updating address:', error);
-	        alert('Error updating address');
+	        alert('Terjadi kesalahan saat diperbarui');
 	    }
 	}
 
@@ -330,14 +330,14 @@ async function saveNewPembayaran(newPembayaran) {
       console.log('API Response:', response);
       if (response.data.success) {
       	showAddPembayaranPopup = false;
-        alert('Metode Pembayaran added successfully!');
+        alert('Data Berhasil Ditambahkan!');
         window.location.reload();
       } else {
-        alert('Failed to add Metode Pembayaran: ' + (response.data.error || 'Unknown error'));
+        alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error adding metode pembayaran:', error);
-      alert('An error occurred while adding metode pembayaran.');
+      alert('Terjadi kesalahan saat data ditambahkan');
     }
   }
 
@@ -358,6 +358,10 @@ async function saveNewPembayaran(newPembayaran) {
 	      formData.append('qrisImg', newPembayaran.qrisImg);
 	    }
 
+	    	    for (let [key, value] of formData.entries()) {
+	        console.log(key, value);
+	    }
+
 	      const response = await ApiController({ 
 	      	method: 'PUT', 
 	      	endpoint: `editPaymentMethod/${newPembayaran.idPembayaran}/${email}`,
@@ -370,14 +374,15 @@ async function saveNewPembayaran(newPembayaran) {
 	      if (response && response.data && response.data.success) {
 	      	showEditPembayaranPopup = false;
 	      	pembayaranForm = { ...pembayaranForm, ...newPembayaran };
-	        alert('Metode Pembayaran updated successfully!');
+	        alert('Data Berhasil Diperbarui!');
 	        window.location.reload();
 	      } else {
-	        alert('Failed to update Metode Pembayaran: ' + (response.data.error || 'Unknown error'));
+	        console.error('Failed to update Metode Pembayaran: ' + (response.data.error || 'Unknown error'));
+	        alert('Terjadi kesalahan saat diperbarui');
 	      }
 	    } catch (error) {
 	      console.error('Error updating metode pembayaran:', error);
-	      alert('An error occurred while updating metode pembayaran.');
+	      alert('Terjadi kesalahan saat diperbarui');
 	    }
   	}
 
@@ -398,15 +403,16 @@ async function saveNewPembayaran(newPembayaran) {
             });
 
             if (response && response.data && response.data.success) {
-                alert('Metode Pembayaran deleted successfully');
+                alert('Data Berhasil Dihapus!');
                 users = users.filter(user => user.idPembayaran !== idPembayaran);
                 window.location.reload();
             } else {
                 console.error('Failed to delete metode pembayaran:', response ? response.data.error : 'No response from server');
-                alert('Failed');
+                alert('Terjadi kesalahan saat data dihapus');
             }
         } catch (error) {
             console.error('Error deleting metode pembayaran:', error);
+            alert('Terjadi kesalahan saat data dihapus');
         }
     }
 
@@ -467,15 +473,15 @@ async function saveNewPembayaran(newPembayaran) {
 	            operasionalForm = { ...operasionalForm, ...newJamOperasional };
 	            showAddJamOperasionalPopup = false;
 	            showEditJamOperasionalPopup = false;
-	            alert('Jam Operasional updated successfully');
+	            alert('Data Berhasil Diperbarui!');
 	            window.location.reload();
 	            console.log(jamOperasionalExists);
 	        } else {
-	            alert('Failed to update jam operasional: ' + response.data.message);
+	            alert('Terjadi kesalahan saat data diperbarui: ' + response.data.message);
 	        }
 	    } catch (error) {
 	        console.error('Error updating jam operasional:', error);
-	        alert('Error updating jam operasional');
+	        alert('Terjadi kesalahan saat data diperbarui');
 	    }
 	}
 
@@ -507,11 +513,11 @@ async function saveNewPembayaran(newPembayaran) {
 				window.location.reload();
 			} else {
 				console.error('Failed to update state:', response ? response.data.error : 'No response from server');
-				alert('Failed to update state');
+				alert('Terjadi kesalahan saat data diperbarui');
 			}
 		} catch (error) {
 			console.error('Error updating state:', error);
-			alert('Error updating state');
+			alert('Terjadi kesalahan saat data diperbarui');
 		}
 	}
 </script>
@@ -534,7 +540,7 @@ async function saveNewPembayaran(newPembayaran) {
         </div>
         <br>
         <div class="centered-items">
-            <div class="profile-img"><img src={"/uploads/" + form.profilPict} alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
+            <div class="profile-img"><img src={form.profilPict} alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
         </div><br>
         <div class="centered-items">
         	{#if alamatExists && jamOperasionalExists && kategoriExists}
@@ -607,6 +613,7 @@ async function saveNewPembayaran(newPembayaran) {
                 </div>
             </div>
             {/if}
+            {#if paymentMethods.length > 0}
             <div class="card-info-border">
 			  <div class="card-row">
 			    <div>
@@ -635,7 +642,7 @@ async function saveNewPembayaran(newPembayaran) {
 			          <div class="card-row-spaceless">
 			            <div>
 			              <div class="card-title-smaller">QRIS</div>
-			              <img src={"/uploads/qr/" + method.qrisImg} alt="QRIS Image" class="laundry-image">
+			              <img src={method.qrisImg} alt="QRIS Image" style="width: 50%; height: 50%;">
 			              <div class="card-caption">{method.catatan}</div>
 			            </div>
 			          </div>
@@ -673,6 +680,25 @@ async function saveNewPembayaran(newPembayaran) {
 			    </div>
 			  </div>
 			</div>
+			{:else}
+			<div class="card-info-border">
+                <div class="card-row">
+                    <div>
+                        <div class="card-row-spaceless">
+                            <div>
+                                <div class="card-title">Metode Pembayaran</div>
+                                <div class="card-caption">Metode Pembayaran belum diisi</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="card-review">
+                            <a href="javascript:void(0)" on:click={() => showAddPembayaranPopup = true}>Tambah</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/if}
 			{#if jamOperasionalExists}
 	            <div class="card-info-border">
 	                <div class="card-row">

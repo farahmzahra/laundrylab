@@ -4,7 +4,6 @@
 	import Button from '$lib/components/button.svelte';
 	import UserNavbar from '../../UserNavbar.svelte';
 	import ApiController from '../../ApiController.js';
-	import ProtectedRoute from '../../ProtectedRoute.svelte';
 	import EditProfilePopup from '$lib/components/popup/User/EditProfilPopup.svelte';
 	import TambahAlamatPopup from '$lib/components/popup/User/TambahAlamatPopup.svelte';
 	import EditAlamatPopup from '$lib/components/popup/User/EditAlamatPopup.svelte';
@@ -118,16 +117,15 @@
 	      if (response && response.data && response.data.success) {
 	        form = { ...updatedForm };
 	        showEditProfilePopup = false;
-	        alert('successful');
-	        console.log(updatedForm.fullName);
-	        console.log(updatedForm.profilPict);
+	        alert('Data Berhasil Diubah!');
+	        window.location.reload();
 	      } else {
 	        console.error('Failed to update profile:', response ? response.data.error : 'No response from server');
-	        alert('Failed to update profile');
+	        alert('Terjadi kesalahan saat data diperbarui');
 	      }
 	    } catch (error) {
 	      console.error('Error updating profile:', error);
-	      alert('Error updating profile');
+	      alert('Terjadi kesalahan saat data diperbarui');
 	    }
 	}
 
@@ -156,13 +154,13 @@
       if (response.data.success) {
       	showAddAlamatPopup = false;
       	window.location.reload();
-        alert('Alamat added successfully!');
+        alert('Data Berhasil Ditambahkan!');
       } else {
-        alert('Failed to add Alamat: ' + (response.data.error || 'Unknown error'));
+        alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error adding alamat:', error);
-      alert('An error occurred while adding alamat.');
+      alert('Terjadi kesalahan saat data ditambahkan');
     }
   }
 
@@ -195,13 +193,13 @@
 	      	alamatForm = { ...alamatForm, ...newAlamat };
 	      	console.log(alamatForm);
 	      	console.log(newAlamat);
-	        alert('Alamat updated successfully!');
+	        alert('Data Berhasil Diperbarui!');
 	      } else {
-	        alert('Failed to update Alamat: ' + (response.data.error || 'Unknown error'));
+	        alert('Terjadi kesalahan saat data diperbarui: ' + (response.data.error || 'Unknown error'));
 	      }
 	    } catch (error) {
 	      console.error('Error updating alamat:', error);
-	      alert('An error occurred while updating alamat.');
+	      alert('Terjadi kesalahan saat data diperbarui');
 	    }
   	}
 
@@ -253,14 +251,15 @@
             });
 
             if (response && response.data && response.data.success) {
-                alert('Alamat deleted successfully');
+                alert('Data Berhasil Dihapus');
                 users = users.filter(user => user.idAlamat !== idAlamat);
             } else {
                 console.error('Failed to delete alamat:', response ? response.data.error : 'No response from server');
-                alert('Failed');
+                alert('Terjadi kesalahan saat data dihapus');
             }
         } catch (error) {
             console.error('Error deleting alamat:', error);
+            alert('Terjadi kesalahan saat data dihapus');
         }
     }
 
@@ -284,101 +283,100 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
-<ProtectedRoute>
-	<div class="card-container">
-		<div class="scrollable">
-			<div class="header" style="align-items: center;">
-				<div class="title-center">
-			      Profil Saya
-			    </div>
-			</div>
-			<br>
-			<div class="centered-items">
-	            <div class="profile-img"><img src={"/uploads/" + form.profilPict} fetchpriority="high" alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
-	        </div><br>
-	        <div>
-	        	<div class="card-row">
-	                <div>
-	                    <div class="card-row-spaceless">
-	                        <div class="card-title">Detail Data</div>
-	                    </div>
-	                </div>
-	                <div>
-	                    <div class="card-row-spaceless">
-	                        <a href="javascript:void(0)" on:click={() => showEditProfilePopup = true}>Ubah</a>
-	                    </div>
-	                </div>
-	            </div>
-	            <Input type="text" placeholder="Nama Lengkap" bind:value={form.fullName} disabled={true} style="width: 410px;" id="nama"/>
-	            <Input type="text" placeholder="Email" bind:value={form.email} disabled={true} style="width: 410px;" id="Email" />
-	            <Input type="text" placeholder="Nomor Telepon" bind:value={form.notelp} disabled={true} style="width: 410px;" id="notelp"/>
-	        </div>
-	        
-	        {#if addressExists}
-             <div class="card-info-border">
-			  <div class="card-row">
-			    <div>
-			      <div class="card-title">Alamat</div>
-			      <div class="card-border"></div>
-			      {#each dataAddresses as alamat}
-			          <div class="card-row-spaceless">
-			            <div>
-			              <div class="card-caption">{alamat.alamat}, {alamat.kelurahan}, {alamat.kecamatan}, {alamat.kodePos}</div>
-                                <div class="card-caption">Catatan: {alamat.detailAlamat}</div>
-			            </div>
-			          </div>
-			          <div>
-		              	<div class="card-review">
-					        <a href="javascript:void(0)" on:click={handleAlamatClick(alamat.idAlamat)}>Ubah</a>
-					    </div>
-					    <div class="card-review">
-					        <a href="javascript:void(0)" on:click={() => deleteAlamat(alamat.idAlamat)}>Hapus</a>
-					    </div>
-		              </div>
-			        <div class="card-border"></div>
-			      {/each}
-			    </div>
-			    <div>
-			      <div class="card-review">
-			        <a href="javascript:void(0)" on:click={() => showAddAlamatPopup = true}>Tambah</a>
-			      </div>
-			    </div>
-			  </div>
-			</div>
-            {:else}
-            <div class="card-info-border">
-                <div class="card-row">
-                    <div>
-                        <div class="card-row-spaceless">
-                            <div>
-                                <div class="card-title">Alamat</div>
-                                <div class="card-caption">Alamat belum diisi</div>
-                            </div>
-                        </div>
+<div class="card-container">
+	<div class="scrollable">
+		<div class="header" style="align-items: center;">
+			<div class="title-center">
+		      Profil Saya
+		    </div>
+		</div>
+		<br>
+		<div class="centered-items">
+            <div class="profile-img"><img src={form.profilPict} fetchpriority="high" alt="No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet. No Profile Image Yet"></div>
+        </div><br>
+        <div>
+        	<div class="card-row">
+                <div>
+                    <div class="card-row-spaceless">
+                        <div class="card-title">Detail Data</div>
                     </div>
-                    <div>
-                        <div class="card-review">
-                            <a href="javascript:void(0)" on:click={() => showAddAlamatPopup = true}>Tambah</a>
-                        </div>
+                </div>
+                <div>
+                    <div class="card-row-spaceless">
+                        <a href="javascript:void(0)" on:click={() => showEditProfilePopup = true}>Ubah</a>
                     </div>
                 </div>
             </div>
-            {/if}
-			<div class="centered-items">
-	            <Button type="button" label="Logout" on:click={logout} />
-	        </div>
-	        <br><br>
-	        <br><br>
+            <Input type="text" placeholder="Nama Lengkap" bind:value={form.fullName} disabled={true} style="width: 410px;" id="nama"/>
+            <Input type="text" placeholder="Email" bind:value={form.email} disabled={true} style="width: 410px;" id="Email" />
+            <Input type="text" placeholder="Nomor Telepon" bind:value={form.notelp} disabled={true} style="width: 410px;" id="notelp"/>
+        </div>
+        
+<!-- 	        {#if addressExists} -->
+		{#if dataAddresses.length > 0}
+         <div class="card-info-border">
+		  <div class="card-row">
+		    <div>
+		      <div class="card-title">Alamat</div>
+		      <div class="card-border"></div>
+		      {#each dataAddresses as alamat}
+		          <div class="card-row-spaceless">
+		            <div>
+		              <div class="card-caption">{alamat.alamat}, {alamat.kelurahan}, {alamat.kecamatan}, {alamat.kodePos}</div>
+                            <div class="card-caption">Catatan: {alamat.detailAlamat}</div>
+		            </div>
+		          </div>
+		          <div>
+	              	<div class="card-review">
+				        <a href="javascript:void(0)" on:click={handleAlamatClick(alamat.idAlamat)}>Ubah</a>
+				    </div>
+				    <div class="card-review">
+				        <a href="javascript:void(0)" on:click={() => deleteAlamat(alamat.idAlamat)}>Hapus</a>
+				    </div>
+	              </div>
+		        <div class="card-border"></div>
+		      {/each}
+		    </div>
+		    <div>
+		      <div class="card-review">
+		        <a href="javascript:void(0)" on:click={() => showAddAlamatPopup = true}>Tambah</a>
+		      </div>
+		    </div>
+		  </div>
 		</div>
-		<UserNavbar />
+        {:else}
+        <div class="card-info-border">
+            <div class="card-row">
+                <div>
+                    <div class="card-row-spaceless">
+                        <div>
+                            <div class="card-title">Alamat</div>
+                            <div class="card-caption">Alamat belum diisi</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card-review">
+                        <a href="javascript:void(0)" on:click={() => showAddAlamatPopup = true}>Tambah</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/if}
+		<div class="centered-items">
+            <Button type="button" label="Logout" on:click={logout} />
+        </div>
+        <br><br>
+        <br><br>
 	</div>
-	{#if showEditProfilePopup}
-		<EditProfilePopup {form} on:close={() => showEditProfilePopup = false} on:save={(e) => saveProfile(e.detail)} />
-	{/if}
-	{#if showAddAlamatPopup}
-		<TambahAlamatPopup {alamatForm} on:close={() => showAddAlamatPopup = false} on:save={(e) => saveNewAddress(e.detail)} />
-	{/if}
-	{#if showEditAlamatPopup}
-	    <EditAlamatPopup {alamatForm} on:close={() => showEditAlamatPopup = false} on:save={(e) => EditAddress(e.detail)} />
-	{/if}
-</ProtectedRoute>
+	<UserNavbar />
+</div>
+{#if showEditProfilePopup}
+	<EditProfilePopup {form} on:close={() => showEditProfilePopup = false} on:save={(e) => saveProfile(e.detail)} />
+{/if}
+{#if showAddAlamatPopup}
+	<TambahAlamatPopup {alamatForm} on:close={() => showAddAlamatPopup = false} on:save={(e) => saveNewAddress(e.detail)} />
+{/if}
+{#if showEditAlamatPopup}
+    <EditAlamatPopup {alamatForm} on:close={() => showEditAlamatPopup = false} on:save={(e) => EditAddress(e.detail)} />
+{/if}

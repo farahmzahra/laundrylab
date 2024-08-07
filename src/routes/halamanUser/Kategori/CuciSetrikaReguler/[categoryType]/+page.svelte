@@ -147,32 +147,36 @@
                 </a>
             </div>
         </div>
-        {#each allLaundries as laundry}
-            <div class="card-info-border">
-				<div class="card-row-spaceless">
-					<img src={"/uploads/" + laundry.profilPict} class="img-icon-prof" alt="Profil" style="margin-right: 10px;">
-					<a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
-						<div>
-							<div class="card-title">{laundry.namaLaundry}</div>
-							<div class="card-caption">{laundry.alamat}</div>
-							<div class="laundry-col">
-								<a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
-							  	<div class="laundry-col">
-							  		<img src="{star}" class="img-icon-star" alt="star">
-							  		<div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
-							  	</div>
+        {#if allLaundries.length > 0}
+	        {#each allLaundries as laundry}
+	            <div class="card-info-border">
+					<div class="card-row-spaceless">
+						<img src={laundry.profilPict} class="img-icon-prof" alt="Profil" style="margin-right: 10px;">
+						<a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
+							<div>
+								<div class="card-title">{laundry.namaLaundry}</div>
+								<div class="card-caption">{laundry.alamat}</div>
+								<div class="laundry-col">
+									<a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
+								  	<div class="laundry-col">
+								  		<img src="{star}" class="img-icon-star" alt="star">
+								  		<div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
+								  	</div>
+								</div>
 							</div>
+						</a>
+						<img src="{line}" class="spacing" alt="Separator">
+						<div>
+							<div class="card-title">Cuci Setrika Reguler</div>
+							<div class="card-caption">Rp. {laundry.harga}/kg</div>
+							<div class="card-caption">Note: {laundry.keterangan}</div>
 						</div>
-					</a>
-					<img src="{line}" class="spacing" alt="Separator">
-					<div>
-						<div class="card-title">Cuci Setrika Reguler</div>
-						<div class="card-caption">Rp. {laundry.harga}/kg</div>
-						<div class="card-caption">Note: {laundry.keterangan}</div>
 					</div>
 				</div>
-			</div>
-        {/each}
+	        {/each}
+	    {:else}
+            <p class="centered-items">Belum ada Data</p>
+        {/if}
 	</div>
 	<br><br><br>
 	<UserNavbar />

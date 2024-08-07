@@ -20,6 +20,11 @@
   }
 
   async function saveChanges() {
+    if (!penilaianForm.ulasan) {
+        alert('Kolom harus terisi!');
+        return;
+    }
+
     dispatch('save', { ...penilaianForm });
   }
 

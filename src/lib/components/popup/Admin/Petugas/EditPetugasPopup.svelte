@@ -17,7 +17,7 @@
 
   function handleImageChange(event) {
       const file = event.target.files[0];
-      form.qrisImg = file;
+      form.profil_petugas = file;
   }
 
   function closePopup() {
@@ -25,6 +25,11 @@
   }
 
   async function saveChanges() {
+    if (!form.nama_petugas || !form.notelp_petugas || !form.email_petugas || !form.password_petugas) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+    
     dispatch('save', { ...form });
   }
 

@@ -46,6 +46,11 @@
 	  };
 
 	function register() {
+		if (!form.nama || !form.email || !form.notelp || !form.password) {
+	      	alert('Semua kolom harus diisi!');
+	      	return;
+	    }
+
 		if (!isValidEmail(form.email)) {
             alert('Format email salah, silahkan coba lagi!');
             return;
@@ -63,16 +68,10 @@
 		formData.append('notelp', form.notelp);
 		formData.append('password', form.password);
 
-		function postRegister() {
-			ApiController({method:'POST', endpoint:'userRegister', datas: formData}).then(response => {
-				if (response.data.validator == 'false') {
-	                window.location.href = '/'
-	            }
-	            console.log(response.data.validator)
-			})
-		}
-
-		postRegister();
+		ApiController({method:'POST', endpoint:'userRegister', datas: formData}).then(response => {
+			alert('Data Berhasil Ditambahkan!');
+			window.location.href = '/'
+		})
 	}
 
 	function isValidEmail(email) {
@@ -81,7 +80,7 @@
     }
 
     function isValidPhoneNumber(phoneNumber) {
-        const phoneNumberPattern = /^62\d{10,11}$/;;
+        const phoneNumberPattern = /^62\d{9,11}$/;;
         return phoneNumberPattern.test(phoneNumber);
     }
 

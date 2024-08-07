@@ -86,30 +86,31 @@
         }
 
         try {
-            const response = await ApiController({ 
-                method: 'GET', 
-                endpoint: `getKategori/${email}`, 
-                token: token
-            });
+	        const response = await ApiController({
+	            method: 'GET',
+	            endpoint: `getKategori/${email}`,
+	            token: token
+	        });
 
-            if (response && response.data && response.data.success) {
-		        categories = response.data.categories;
-		        if (categories.length > 0) {
-		          const lastUserId = categories
-		            .map(user => parseInt(user.idKategori))
-		            .sort((a, b) => a - b)
-		            .pop();
-		          const incrementedId = lastUserId + 1;
-		          kategoriForm.idKategori = incrementedId.toString();
-		        } else {
-		          kategoriForm.idKategori = '1';
-		        }
-		      } else {
-                console.error('Failed to fetch categories:', response ? response.data.error : 'No response from server');
-            }
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-        }
+	        if (response && response.data && response.data.success) {
+	            categories = response.data.categories;
+	            console.log(categories);  // Log the fetched categories for debugging
+	            if (categories.length > 0) {
+	                const lastUserId = categories
+	                    .map(user => parseInt(user.idKategori))
+	                    .sort((a, b) => a - b)
+	                    .pop();
+	                const incrementedId = lastUserId + 1;
+	                kategoriForm.idKategori = incrementedId.toString();
+	            } else {
+	                kategoriForm.idKategori = '1';
+	            }
+	        } else {
+	            console.error('Failed to fetch categories:', response ? response.data.error : 'No response from server');
+	        }
+	    } catch (error) {
+	        console.error('Error fetching categories:', error);
+	    }
 
         try {
             const response = await ApiController({
@@ -182,15 +183,15 @@
 	      console.log('API Response:', response);
 	      if (response.data.success) {
 	      	showAddPetugasPopup = false;
-	        alert('Petugas added successfully!');
+	        alert('Data Berhasil Ditambahkan!');
 	        window.location.reload();
 	      } else {
 	      	showAddPetugasPopup = false;
-	        alert('Failed to add Petugas: ' + (response.data.error || 'Unknown error'));
+	        alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
 	      }
 	    } catch (error) {
 	      console.error('Error adding petugas:', error);
-	      alert('An error occurred while adding petugas.');
+	      alert('Terjadi kesalahan saat data ditambahkan');
 	    }
 	  }
 
@@ -222,15 +223,15 @@
 		      if (response && response.data && response.data.success) {
 		      	showEditPetugasPopup = false;
 		      	form = { ...form, ...newPetugas };
-		        alert('Petugas updated successfully!');
+		        alert('Data Berhasil Diperbarui!');
 		        window.location.reload();
 		      } else {
 		      	showEditPetugasPopup = false;
-		        alert('Failed to update Petugas: ' + (response.data.error || 'Unknown error'));
+		        alert('Terjadi kesalahan saat data diperbaruis: ' + (response.data.error || 'Unknown error'));
 		      }
 		    } catch (error) {
 		      console.error('Error updating petugas:', error);
-		      alert('An error occurred while updating petugas.');
+		      alert('Terjadi kesalahan saat data diperbarui');
 		    }
 	  	}
 
@@ -276,15 +277,16 @@
             });
 
             if (response && response.data && response.data.success) {
-                alert('Petugas deleted successfully');
+                alert('Data Berhasil Dihapus');
                 window.location.reload();
                 users = users.filter(user => user.id_petugas !== id_petugas);
             } else {
                 console.error('Failed to delete petugas:', response ? response.data.error : 'No response from server');
-                alert('Failed');
+                alert('Terjadi kesalahan saat data dihapus');
             }
         } catch (error) {
             console.error('Error deleting petugas:', error);
+            alert('Terjadi kesalahan saat data dihapus');
         }
     }
 
@@ -310,15 +312,15 @@
 	      if (response.data.success) {
 	      	console.log(formData);
 	      	showAddKategoriPopup = false;
-	        alert('Kategori added successfully!');
+	        alert('Data Berhasil Ditambahkan!');
 	        window.location.reload();
 	      } else {
 	      	showAddKategoriPopup = false;
-	        alert('Failed to add Kategori: ' + (response.data.error || 'Unknown error'));
+	        alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
 	      }
 	    } catch (error) {
 	      console.error('Error adding kategori:', error);
-	      alert('An error occurred while adding kategori.');
+	      alert('Terjadi kesalahan saat data ditambahkan');
 	    }
 	  }
 
@@ -345,15 +347,15 @@
 		      if (response && response.data && response.data.success) {
 		      	showEditKategoriPopup = false;
 		      	kategoriForm = { ...kategoriForm, ...newKategori };
-		        alert('Kategori updated successfully!');
+		        alert('Data Berhasil Diperbarui!');
 		        window.location.reload();
 		      } else {
 		      	showEditKategoriPopup = false;
-		        alert('Failed to update Kategori: ' + (response.data.error || 'Unknown error'));
+		        alert('Terjadi kesalahan saat data diperbarui: ' + (response.data.error || 'Unknown error'));
 		      }
 		    } catch (error) {
 		      console.error('Error updating kategori:', error);
-		      alert('An error occurred while updating kategori.');
+		      alert('Terjadi kesalahan saat data diperbarui');
 		    }
 	  	}
 
@@ -398,15 +400,16 @@
             });
 
             if (response && response.data && response.data.success) {
-                alert('Kategori deleted successfully');
+                alert('Data Berhasil Dihapus');
                 categories = categories.filter(user => user.idKategori !== idKategori);
                 window.location.reload();
             } else {
                 console.error('Failed to delete kategori:', response ? response.data.error : 'No response from server');
-                alert('Failed');
+                alert('Terjadi kesalahan saat data diperbarui');
             }
         } catch (error) {
             console.error('Error deleting kategori:', error);
+            alert('Terjadi kesalahan saat data diperbarui');
         }
     }
 
@@ -434,7 +437,7 @@
 			<div class="title">Kategori</div>
 			<a href="javascript:void(0)" on:click={() => showAddKategoriPopup = true}><div class="sub-title">Tambah</div></a>
 		</div>
-		{#if categories.length > 0}
+		<!-- {#if categories.length > 0}
 			{#each categories as user}
 				{#if user.categoryType === 'cuci_kering'}
 					<div class="card-info-border">
@@ -578,6 +581,36 @@
 			{/each}
 		{:else}
 			<p>No data</p>
+		{/if} -->
+		{#if categories.length > 0}
+		    {#each categories as category}
+		        <div class="card-info-border">
+		            <div class="card-row-spaceless">
+		                <div class="space-style">
+		                    <div class="card-title">{category.categoryName}</div>
+		                </div>
+		                <div class="space-style">
+		                    <div class="card-caption"></div>
+		                </div>
+		            </div>
+		            <div class="card-row-spaceless">
+		                <div class="space-style">
+		                    <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {category.harga}</div>
+		                    <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {category.keterangan}</div>
+		                </div>
+		                <div class="space-style">
+		                    <div class="card-title-secondary" style="text-align: right;">
+		                        <a href="javascript:void(0)" on:click={() => handleKategoriClick(category.idKategori)}>Ubah</a>
+		                    </div>
+		                    <div class="card-title-secondary" style="text-align: right;">
+		                        <a href="javascript:void(0)" on:click={() => deleteKategori(category.idKategori)}>Hapus</a>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    {/each}
+		{:else}
+		    <p>Belum ada Data</p>
 		{/if}
 		<div class="card-row">
 			<div class="title">Petugas</div>
@@ -609,14 +642,16 @@
 				</div>
 			{/each}
 		{:else}
-			<p>No data</p>
+			<p>Belum ada Data</p>
 		{/if}
-		{#if allRates !== -1}
+
+<!-- 		{#if allRates !== -1} -->
         <div class="card-row">
             <div class="title">Penilaian</div>
         </div>
         <div class="scrollable-x">
             <div class="laundry-list">
+            {#if allRates.length > 0}
                 {#each allRates as rate}
                 <div class="card-info-border">
                     <div class="card-row">
@@ -634,10 +669,12 @@
                         </div>
                     </div>
                 </div>
-                {/each}
+                {/each}    
+	        {:else}
+	        	<p>Belum ada Data</p>
+	        {/if}
             </div>
         </div>
-        {/if}
 	</div>
 	<br><br><br>
 	<AdminNavbar />

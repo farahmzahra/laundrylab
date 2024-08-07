@@ -48,6 +48,11 @@
   }
 
   async function saveChanges() {
+    if (!alamatForm.alamat || !alamatForm.kelurahan || !alamatForm.kecamatan || !alamatForm.kodePos || !alamatForm.detailAlamat) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+
     dispatch('save', { ...alamatForm});
   }
 
@@ -73,7 +78,7 @@
       <Input type="text" placeholder="Kecamatan" bind:value={alamatForm.kecamatan} />
     </div>
     <div class="centered-items">
-      <Input type="text" placeholder="Kode Pos" bind:value={alamatForm.kodePos} />
+      <Input type="number" placeholder="Kode Pos" bind:value={alamatForm.kodePos} />
     </div>
     <div class="centered-items">
       <Input type="text" placeholder="Detail Alamat" bind:value={alamatForm.detailAlamat} />

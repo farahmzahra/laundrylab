@@ -202,7 +202,7 @@
             </div>
             <div class="centered-items">
               <div>
-                <img src={"/uploads/qr/" + method.qrisImg} alt="QRIS Image" style="width: 100px; height: 100px; cursor: pointer;" on:click={() => openModal("/uploads/qr/" + method.qrisImg)} />
+                <img src={method.qrisImg} alt="QRIS Image" style="width: 100px; height: 100px; cursor: pointer;" on:click={() => openModal(method.qrisImg)} />
               </div>
             </div>
             <div class="centered-items">
@@ -229,8 +229,8 @@
     </div>
     <div class="centered-items">
       <div>
-        <button type="button" on:click={saveChanges}>Simpan</button>
         <button type="button" on:click={closePopup}>Batal</button>
+        <button type="button" on:click={saveChanges}>Simpan</button>
       </div>
     </div>
   </div>

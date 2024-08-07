@@ -18,6 +18,16 @@
   }
 
   async function saveChanges() {
+    if (!form.fullName || !form.email || !form.notelp) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+
+    if (!isValidPhoneNumber(form.notelp)) {
+        alert('Format nomor telepon salah, awali dengan 62!');
+        return;
+    }
+
     dispatch('save', { ...form });
   }
 
@@ -31,6 +41,11 @@
   function handleImageChange(event) {
       const file = event.target.files[0];
       form.profilPict = file;
+  }
+
+  function isValidPhoneNumber(phoneNumber) {
+      const phoneNumberPattern = /^62\d{9,11}$/;;
+      return phoneNumberPattern.test(phoneNumber);
   }
 </script>
 
@@ -48,6 +63,8 @@
     </div>
     <div class="centered-items">
       <h3>Upload Foto Profil</h3><br>
+    </div>
+    <div class="centered-items">
       <input type="file" accept="image/png, image/jpeg" on:change={handleImageChange} />
     </div>
     <div class="centered-items">

@@ -211,22 +211,18 @@
 
                 if (updateResponse.data.success) {
                     showAddPenilaianPopup = false;
-                    alert('Penilaian added successfully!');
-                    window.location.reload();
-                } else {
-                    alert('Failed to update status: ' + (updateResponse.data.error || 'Unknown error'));
                 }
             } catch (updateError) {
                 console.error('Error updating status:', updateError);
-                alert('An error occurred while updating status.');
             }
+            alert('Penilaian Berhasil Ditambahkan!')
 	        window.location.reload();
 	      } else {
-	        alert('Failed to add Penilaian: ' + (response.data.error || 'Unknown error'));
+	        alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
 	      }
 	    } catch (error) {
 	      console.error('Error adding penilaian:', error);
-	      alert('An error occurred while adding penilaian.');
+	      alert('Terjadi kesalahan saat data ditambahkan');
 	    }
 	}
 </script>
@@ -385,7 +381,7 @@
                     </div>
                 </a>
                 {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
-                <div class="card-info-border">
+<!--                 <div class="card-info-border">
                 	<a sveltekit:prefetch href="{`/halamanUser/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
                         <div class="card-row-spaceless">
                             <div class="space-style">
@@ -404,17 +400,63 @@
 			                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
 			                </div>
                         </div>
-
-            		</a>
+            		</a> -->
             		{#if pesanan.isRated === 'true'}
+                    <div class="card-info-border">
+                        <a sveltekit:prefetch href="{`/halamanUser/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-title">{pesanan.laundryDetails?.namaLaundry || 'Loading...'}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="status-text" style="text-align: right;">Selesai</div>
+                                </div>
+                            </div>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: left;">Tanggal Pesanan Selesai: </div>
+                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="card-row-spaceless">
+                            <div class="space-style" style="text-align: right;">
+                                <div class="status-text" style="text-align: right;">Sudah Dinilai</div>
+                            </div>
+                        </div>
+                    </div>
                     {:else}
-                    <div class="card-row-spaceless">
-                    	<div class="space-style" style="text-align: right;">
-                            <button type="button" on:click={openAddPenilaianPopup(pesanan.idPesanan, pesanan.emailLaundry, pesanan.emailUser)}>Beri Penilaian</button>
+                    <div class="card-info-border">
+                        <a sveltekit:prefetch href="{`/halamanUser/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-title">{pesanan.laundryDetails?.namaLaundry || 'Loading...'}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="status-text" style="text-align: right;">Selesai</div>
+                                </div>
+                            </div>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: left;">Tanggal Pesanan Selesai: </div>
+                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="card-row-spaceless">
+                        	<div class="space-style" style="text-align: right;">
+                                <button type="button" on:click={openAddPenilaianPopup(pesanan.idPesanan, pesanan.emailLaundry, pesanan.emailUser)}>Beri Penilaian</button>
+                            </div>
                         </div>
                     </div>
                     {/if}
-                </div>
+
                 {:else if pesanan.statusPesanan[7].status === 'gagal' && activeTab === 'Gagal' && pesanan.statusPesanan[7].active === 'true' }
                 <a sveltekit:prefetch href="{`/halamanUser/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
                     <div class="card-info-border">

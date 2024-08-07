@@ -9,7 +9,7 @@
     paymentMethod: '',
     namaBank: '',
     noRekBank: '',
-    qrisImg: null,
+    qrisImg: '',
     catatan: '',
     upload_path: '/Users/macbook/laundrylab/static/uploads'
   };
@@ -40,7 +40,7 @@
 <div class="popup-overlay" tabindex="0" role="button" aria-label="Close popup" on:click="{closePopup}">
   <div class="popup" on:click|stopPropagation>
     <h2>Ubah Metode Pembayaran</h2>
-    <Input type="text" placeholder="Pilih Metode Pembayaran" bind:value={pembayaranForm.paymentMethod} disabled={true} />
+    <Input type="text" placeholder="Pilih Metode Pembayaran" bind:value={pembayaranForm.paymentMethod} disabled={true} style="width: 400px;" />
     {#if pembayaranForm.paymentMethod === 'bank'}
       <Input type="text" placeholder="Nama Bank" bind:value={pembayaranForm.namaBank} style="width: 400px;" />
       <Input type="text" placeholder="Nomor Rekening Bank" bind:value={pembayaranForm.noRekBank} style="width: 400px;" />

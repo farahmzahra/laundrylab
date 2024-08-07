@@ -244,7 +244,7 @@
 		                <div class="card-title-secondary">{pesanan.berat} Kg</div>
 		            </div>
 		            <div class="space-style">
-		                <div class="card-title-secondary">{pesanan.item} items</div>
+		                <div class="card-title-secondary">{pesanan.item} item</div>
 		            </div>
 		        </div>
 		    {/each}
@@ -275,7 +275,7 @@
             <div>
               	<div class="card-title-smaller">Bukti Pembayaran</div>
               		{#if order.buktiPembayaran}
-					    <img src={"/uploads/paymentProof/" + order.buktiPembayaran} alt="Payment Image" class="payment-image">
+					    <img src={order.buktiPembayaran} alt="Payment Image" class="payment-image">
 					{:else}
 					    <div class="card-sub">Loading...</div>
 					{/if}

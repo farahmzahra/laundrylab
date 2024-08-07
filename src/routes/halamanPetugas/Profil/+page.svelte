@@ -19,7 +19,6 @@
 	import Input from '$lib/components/input.svelte';
 	import Button from '$lib/components/button.svelte';
 	import ApiController from '../../ApiController.js';
-	import ProtectedRoute from '../../ProtectedRoute.svelte';
 	import '@fontsource/montserrat';
 
 	let email = '';
@@ -82,7 +81,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
-<ProtectedRoute>
 	<div class="card-container">
 		<div class="header">
 			<a href="/halamanPetugas/Pesanan/">
@@ -119,4 +117,3 @@
         <br><br>
         <br><br>
 	</div>
-</ProtectedRoute>

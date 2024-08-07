@@ -256,8 +256,11 @@
                 for (const laundry of laundries) {
                     sumRates[laundry.email] = await generateSumRate(laundry.email);
                 }
+
+                console.log(laundries);
             } else {
                 console.error('Failed to fetch laundries:', response ? response.data.error : 'No response from server');
+                console.log(response.data.laundries);
             }
         } catch (error) {
             console.error('Error fetching laundries:', error);
@@ -280,17 +283,6 @@
         <div>
             <input type="text" placeholder="Cari Laundry" on:input="{(e) => searchLaundry(e.target.value)}" style="width: 410px" id="search">
         </div>
-		<!-- <div class="card-row">
-			<div class="title">Kategori</div>
-			<div class="location-container">
-                <select bind:value={selectedAddress} class="location-button" id="location">
-                    <option value="" disabled selected>Pilih Alamat</option>
-                    {#each dataAddresses as address}
-                        <option value="{address.idAlamat}">{address.alamat}</option>
-                    {/each}
-                </select>
-            </div>
-		</div> -->
         <div class="card-row">
             <div class="title">Kategori</div>
             {#if dataAddresses.length > 0}
@@ -358,7 +350,7 @@
                             <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${result.email}`}" on:click={(event) => handleClick(event, result.email)}>
                                 <div class="laundry-card">
                                     <div class="laundry-image-container">
-                                        <img src={"/uploads/" + result.profilPict} alt="{result.namaLaundry}" class="laundry-image">
+                                        <img src={result.profilPict} alt="{result.namaLaundry}" class="laundry-image">
                                     </div>
                                     <div class="laundry-title">{result.namaLaundry}</div>
                                     <div class="laundry-col">
@@ -391,7 +383,7 @@
 		            <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
 		                <div class="laundry-card">
 		                    <div class="laundry-image-container">
-		                        <img src={"/uploads/" + laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
+		                        <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
 		                    </div>
 		                    <div class="laundry-title">{laundry.namaLaundry}</div>
 		                    <div class="laundry-col">
@@ -414,17 +406,20 @@
 		        </div>
 		    </div>
 		{/if}
+        <br>
         <div class="card-row">
             <div class="title">Semua Laundry</div>
             <a href="#" on:click="{loadAllLaundries}" class="sub-title">Lihat Semua</a>
         </div><br>
         <div class="scrollable-x">
 		    <div class="laundry-list">
+            {#if displayedLaundries.length > 0}
 		        {#each displayedLaundries as laundry}
 		        <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
 		            <div class="laundry-card">
 		                <div class="laundry-image-container">
-		                    <img src="{laundry.profilPict ? '/uploads/' + laundry.profilPict : laundrytest}" alt="{laundry.namaLaundry}" class="laundry-image">
+<!-- 		                    <img src="{laundry.profilPict ? '/uploads/' + laundry.profilPict : laundrytest}" alt="{laundry.namaLaundry}" class="laundry-image"> -->
+                            <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
 		                </div>
 		                <div class="laundry-title">{laundry.namaLaundry}</div>
 		                <div class="laundry-col">
@@ -440,35 +435,40 @@
 		            </div>
 		        </a>
 		        {/each}
+            {:else}
+                <p>Belum ada Data</p>
+            {/if}
 		    </div>
 		</div><br>
-        {#if allRates !== -1}
         <div class="card-row">
             <div class="title">Penilaian</div>
         </div>
         <div class="scrollable-x">
             <div class="laundry-list">
-                {#each allRates as rate}
-                <div class="card-info-border">
-                    <div class="card-row">
-                        <div>
-                            <div class="card-title">Ulasanmu untuk {getNamaLaundry(rate.emailLaundry)}</div>
-                            <div class="card-caption-bigger">"{rate.ulasan}"</div>
-                        </div>
-                        <div>
-                            <div class="card-review">
-                                {#each { length: 5 } as _, i}
-                                    <img src="{i < rate.rate ? star : disableStar}" alt="Star 4" class="img-icon-star">
-                                {/each}
-                            </div><br>
-                            <div class="card-caption">{rate.tanggal}</div>
+                {#if allRates.length > 0}
+                    {#each allRates as rate}
+                    <div class="card-info-border">
+                        <div class="card-row">
+                            <div>
+                                <div class="card-title">Ulasanmu untuk {getNamaLaundry(rate.emailLaundry)}</div>
+                                <div class="card-caption-bigger">"{rate.ulasan}"</div>
+                            </div>
+                            <div>
+                                <div class="card-review">
+                                    {#each { length: 5 } as _, i}
+                                        <img src="{i < rate.rate ? star : disableStar}" alt="Star 4" class="img-icon-star">
+                                    {/each}
+                                </div><br>
+                                <div class="card-caption">{rate.tanggal}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {/each}
+                    {/each}
+                {:else}
+                    <p>Belum ada Data</p>
+                {/if}
             </div>
         </div>
-        {/if}
     </div>
     <br><br><br>
     <UserNavbar />

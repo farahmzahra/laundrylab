@@ -30,6 +30,32 @@
   }
 
   async function saveChanges() {
+    if (!pembayaranForm.paymentMethod) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+
+    if (pembayaranForm.paymentMethod === 'bank') {
+        if (!pembayaranForm.namaBank || !pembayaranForm.noRekBank || !pembayaranForm.catatan) {
+            alert('Semua kolom harus terisi!');
+            return;
+        }
+    }
+
+    if (pembayaranForm.paymentMethod === 'qris') {
+        if (!pembayaranForm.catatan) {
+            alert('Semua kolom harus terisi!');
+            return;
+        }
+    }
+
+    if (pembayaranForm.paymentMethod === 'tunai') {
+        if (!pembayaranForm.catatan) {
+            alert('Semua kolom harus terisi!');
+            return;
+        }
+    }
+
     dispatch('save', { ...pembayaranForm });
   }
 
@@ -41,7 +67,7 @@
 <div class="popup-overlay" tabindex="0" role="button" aria-label="Close popup" on:click="{closePopup}">
   <div class="popup" on:click|stopPropagation>
     <h2>Tambah Metode Pembayaran</h2>
-    <Input type="dropdown" placeholder="Pilih Metode Pembayaran" bind:value={pembayaranForm.paymentMethod} options={paymentMethods} />
+    <Input type="dropdown" placeholder="Pilih Metode Pembayaran" bind:value={pembayaranForm.paymentMethod} options={paymentMethods} style="width: 400px;" />
     {#if pembayaranForm.paymentMethod === 'bank'}
       <Input type="text" placeholder="Nama Bank" bind:value={pembayaranForm.namaBank} style="width: 400px;" />
       <Input type="text" placeholder="Nomor Rekening Bank" bind:value={pembayaranForm.noRekBank} style="width: 400px;" />

@@ -294,14 +294,14 @@
 
 	        console.log('API Response:', response);
 	        if (response.data.success) {
-	            alert('Pesanan added successfully!');
+	            alert('Data Berhasil Ditambahkan!');
 	            window.location.href = '/halamanUser/Pesanan';
 	        } else {
-	            alert('Failed to add Pesanan: ' + (response.data.error || 'Unknown error'));
+	            alert('Terjadi kesalahan saat data ditambahkan: ' + (response.data.error || 'Unknown error'));
 	        }
 	    } catch (error) {
 	        console.error('Error adding pesanan:', error);
-	        alert('An error occurred while adding pesanan.');
+	        alert('Terjadi kesalahan saat data ditambahkan');
 	    }
 
 
@@ -321,7 +321,6 @@
 
 	        console.log('API Response:', response);
 	        if (response.data.success) {
-	            alert('Notif added successfully!');
 	            window.location.href = '/halamanUser/Pesanan';
 	        } else {
 	            alert('Failed to add Pesanan: ' + (response.data.error || 'Unknown error'));

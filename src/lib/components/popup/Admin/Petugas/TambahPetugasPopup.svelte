@@ -27,6 +27,11 @@
   }
 
   async function saveChanges() {
+    if (!form.nama_petugas || !form.notelp_petugas || !form.email_petugas || !form.password_petugas) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+
     dispatch('save', { ...form });
   }
 

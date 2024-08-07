@@ -24,6 +24,11 @@
   ];
 
   async function saveChanges() {
+    if (!kategoriForm.categoryType || !kategoriForm.categoryName || !kategoriForm.harga || !kategoriForm.keterangan) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+    
     dispatch('save', { ...kategoriForm });
   }
 

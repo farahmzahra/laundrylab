@@ -47,13 +47,18 @@
 	  };
 
 	function register() {
+		if (!form.namaLaundry || !form.email || !form.notelp || !form.password) {
+	      	alert('Semua kolom harus diisi!');
+	      	return;
+	    }
+
 		if (!isValidEmail(form.email)) {
             alert('Format email salah, silahkan coba lagi!');
             return;
         }
 
         if (!isValidPhoneNumber(form.notelp)) {
-            alert('Format nomor telepon salah, awali dengan 62 dan berjumlah 13 karakter!');
+            alert('Format nomor telepon salah, awali dengan 62!');
             return;
         }
 
@@ -65,14 +70,10 @@
 		formData.append('namaLaundry', form.namaLaundry);
 		formData.append('bukaTutupLaundry', form.bukaTutupLaundry);
 
-		function postRegister() {
-			ApiController({method:'POST', endpoint:'adminRegister', datas: formData}).then(response => {
-				alert('successful');
-				window.location.href = '/'
-			})
-		}
-
-		postRegister();
+		ApiController({method:'POST', endpoint:'adminRegister', datas: formData}).then(response => {
+			alert('Data Berhasil Ditambahkan!');
+			window.location.href = '/'
+		})
 	}
 
 	function isValidEmail(email) {
@@ -81,7 +82,7 @@
     }
 
     function isValidPhoneNumber(phoneNumber) {
-        const phoneNumberPattern = /^\d{13}$/;
+        const phoneNumberPattern = /^62\d{9,11}$/;;
         return phoneNumberPattern.test(phoneNumber);
     }
 
