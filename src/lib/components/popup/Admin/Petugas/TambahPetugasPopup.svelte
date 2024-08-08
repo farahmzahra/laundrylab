@@ -32,6 +32,21 @@
         return;
     }
 
+    if (!isValidEmail(form.email_petugas)) {
+        alert('Format email salah, silahkan coba lagi!');
+        return;
+    }
+
+    if (!isValidPhoneNumber(form.notelp_petugas)) {
+        alert('Format nomor telepon salah, awali dengan 62!');
+        return;
+    }
+
+    if (!isValidPassword(form.password_petugas)) {
+        alert('Password harus mengandung minimal 8 karakter, 1 huruf besar, 1 huruf kecil, dan 1 karakter spesial!');
+        return;
+    }
+
     dispatch('save', { ...form });
   }
 
@@ -40,6 +55,21 @@
       event.preventDefault();
       closePopup();
     }
+  }
+
+  function isValidEmail(email) {
+      const emailPattern = /\S+@\S+\.\S+/;
+      return emailPattern.test(email);
+  }
+
+  function isValidPhoneNumber(phoneNumber) {
+      const phoneNumberPattern = /^62\d{9,11}$/;;
+      return phoneNumberPattern.test(phoneNumber);
+  }
+
+  function isValidPassword(password) {
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+      return passwordPattern.test(password);
   }
 </script>
 

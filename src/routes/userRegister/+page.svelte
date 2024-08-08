@@ -61,6 +61,11 @@
             return;
         }
 
+        if (!isValidPassword(form.password)) {
+            alert('Password harus mengandung minimal 8 karakter, 1 huruf besar, 1 huruf kecil, dan 1 karakter spesial!');
+            return;
+        }
+
 		const formData = new FormData();
 		formData.append('idUser', form.idUser);
 		formData.append('nama', form.nama);
@@ -83,6 +88,11 @@
         const phoneNumberPattern = /^62\d{9,11}$/;;
         return phoneNumberPattern.test(phoneNumber);
     }
+
+	function isValidPassword(password) {
+	    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+	    return passwordPattern.test(password);
+	}
 
     onMount(fetchUsers);
 </script>
