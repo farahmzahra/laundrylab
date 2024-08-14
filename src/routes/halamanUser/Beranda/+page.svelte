@@ -12,6 +12,8 @@
     import category6 from '$lib/images/cuci-lainnya.png';
     import ApiController from '../../ApiController.js';
     import UserNavbar from '../../UserNavbar.svelte';
+    import arrowLeft from '$lib/images/left-arrow.png';
+    import arrowRight from '$lib/images/right-arrow.png';
     import '@fontsource/montserrat';
 
     let dataAddresses = [];
@@ -34,6 +36,7 @@
     let showAllLaundries = false;
     let loadMoreLimit = 5;
     let totalLaundries = 0;
+    let scrollNumber = 0;
 
     onMount(async () => {
         const token = localStorage.getItem("token");
@@ -92,6 +95,7 @@
         }
 
         fetchLaundries();
+
     });
 
     async function searchLaundry(query) {
@@ -105,7 +109,7 @@
             });
 
             if (response && response.data && response.data.success) {
-                searchResults = response.data.admin; // Pastikan ini adalah array objek
+                searchResults = response.data.admin;
                 searched = true;
                 console.log('Search results:', searchResults);
             } else {
@@ -285,18 +289,6 @@
         </div>
         <div class="card-row">
             <div class="title">Kategori</div>
-            {#if dataAddresses.length > 0}
-                <div class="location-container">
-                    <select bind:value={selectedAddress} class="location-button" id="location">
-                        <option value="" disabled selected>Pilih Alamat</option>
-                        {#each dataAddresses as address}
-                            <option value="{address.idAlamat}">{address.alamat}</option>
-                        {/each}
-                    </select>
-                </div>
-            {:else}
-                <p>Isi data alamat di Menu Profil!</p>
-            {/if}
         </div>
         <div class="scrollable-x">
             <div class="card-row">
@@ -357,7 +349,12 @@
                                         <div class="laundry-subtitle">{result.alamat}</div>
                                     </div>
                                     <div class="laundry-col">
-                                        <a href="" class="sub-title">{result.bukaTutupLaundry}</a>
+                                        <!-- <a href="" class="sub-title">{result.bukaTutupLaundry}</a> -->
+                                        {#if result.bukaTutupLaundry === "Buka"}
+                                            <a href="" class="sub-title">{result.bukaTutupLaundry}</a>
+                                        {:else}
+                                            <a href="" class="sub-title" style="color: red;">{result.bukaTutupLaundry}</a>
+                                        {/if}
                                         <div class="laundry-col">
                                             <img src="{star}" class="img-icon-star" alt="Star 1">
                                             <div class="laundry-subtitle">{sumRates[result.email]?.toFixed(1) || 'N/A'}</div>
@@ -373,45 +370,88 @@
             </div>
         </div>
         {/if}
-        {#if nearestLaundries.length > 0}
-		    <div class="card-row">
-		        <div class="title">Laundry Terdekat</div>
-		    </div><br>
-		    <div class="scrollable-x">
-		        <div class="laundry-list">
-		            {#each nearestLaundries as laundry}
-		            <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
-		                <div class="laundry-card">
-		                    <div class="laundry-image-container">
-		                        <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
-		                    </div>
-		                    <div class="laundry-title">{laundry.namaLaundry}</div>
-		                    <div class="laundry-col">
-		                        <div class="laundry-subtitle">{laundry.alamat}</div>
-		                        <div class="laundry-col">
-			                        <img src="{location}" alt="Location Icon" class="icon" />
-				                    <div class="laundry-subtitle">{laundry.distance.toFixed(2)} km</div>
-				                </div>                    
-		                    </div>
-		                    <div class="laundry-col">
-		                        <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
-		                        <div class="laundry-col">
-		                            <img src="{star}" class="img-icon-star" alt="Star 2">
-		                            <div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
-		                        </div>
-		                    </div>
-		                </div>
-		            </a>
-		            {/each}
-		        </div>
-		    </div>
-		{/if}
+        <div class="card-row center-all">
+            <div class="title">Laundry Terdekat</div>
+             {#if dataAddresses.length > 0}
+                <div class="location-container">
+                    <select bind:value={selectedAddress} class="location-button" id="location">
+                        <option value="" disabled selected>Pilih Alamat</option>
+                        {#each dataAddresses as address}
+                            <option value="{address.idAlamat}">{address.alamat}</option>
+                        {/each}
+                    </select>
+                </div>
+            {:else}
+                <p>Isi data alamat di Menu Profil!</p>
+            {/if}
+        </div><br>
+        <div class="scrollable-x">
+            <div class="laundry-list ">
+                {#if nearestLaundries.length > 0}
+                    {#each nearestLaundries as laundry}
+                        <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
+                                <div class="laundry-card">
+                                    <div class="laundry-image-container">
+                                        <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
+                                    </div>
+                                    <div class="laundry-title">{laundry.namaLaundry}</div>
+                                    <div class="laundry-col">
+                                        <div class="laundry-subtitle">{laundry.alamat}</div>
+                                        <div class="laundry-col">
+                                            <img src="{location}" alt="Location Icon" class="icon" />
+                                            <div class="laundry-subtitle">{laundry.distance.toFixed(2)} km</div>
+                                        </div>                    
+                                    </div>
+                                    <div class="laundry-col">
+                                        <!-- <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a> -->
+                                        {#if laundry.bukaTutupLaundry === "Buka"}
+                                            <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
+                                        {:else}
+                                            <a href="" class="sub-title" style="color: red;">{laundry.bukaTutupLaundry}</a>
+                                        {/if}
+                                        <div class="laundry-col">
+                                            <img src="{star}" class="img-icon-star" alt="Star 2">
+                                            <div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </a>
+                    {/each}
+                {:else}
+                    <h4>Silahkan pilih alamat terlebih dahulu!</h4>
+                {/if}
+            </div>
+        </div>
         <br>
         <div class="card-row">
             <div class="title">Semua Laundry</div>
             <a href="#" on:click="{loadAllLaundries}" class="sub-title">Lihat Semua</a>
         </div><br>
-        <div class="scrollable-x">
+        <div class="card-row-end">
+            <div class="next-previous-button">
+               <img src="{arrowLeft}" class="icon-next-previous" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    if (scrollNumber > 0) {
+                         scrollNumber -= 100; // Decrease scrollNumber to move left
+                         console.log(scrollNumber)
+                         scrollElem.scrollBy({
+                            left: -100, // Adjust the scroll amount
+                            behavior: 'smooth' // Optional: Adds smooth scrolling
+                        });
+                    }
+                }}>
+                <img src="{arrowRight}" class="icon-next-previous" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    scrollNumber += 100; // Increase scrollNumber to move right
+                    console.log(scrollNumber)
+                    scrollElem.scrollBy({
+                        left: 100, // Adjust the scroll amount
+                        behavior: 'smooth' // Optional: Adds smooth scrolling
+                    });
+                }}>
+            </div>
+        </div>
+        <div class="scrollable-x" id="scroll">
 		    <div class="laundry-list">
             {#if displayedLaundries.length > 0}
 		        {#each displayedLaundries as laundry}
@@ -426,7 +466,12 @@
 		                    <div class="laundry-subtitle">{laundry.alamat}</div>
 		                </div>
 		                <div class="laundry-col">
-		                    <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
+<!-- 		                    <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a> -->
+                            {#if laundry.bukaTutupLaundry === "Buka"}
+                                <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
+                            {:else}
+                                <a href="" class="sub-title" style="color: red;">{laundry.bukaTutupLaundry}</a>
+                            {/if}
 		                    <div class="laundry-col">
 		                        <img src="{star}" class="img-icon-star" alt="Star 3">
 		                        <div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>

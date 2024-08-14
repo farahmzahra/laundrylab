@@ -12,7 +12,8 @@
 		notelp: "",
 		password: "",
 		namaLaundry: "",
-		bukaTutupLaundry: 'Tutup'
+		bukaTutupLaundry: 'Tutup',
+		isValidated: "no"
 	}
 
 	let users = [];
@@ -74,6 +75,7 @@
 		formData.append('password', form.password);
 		formData.append('namaLaundry', form.namaLaundry);
 		formData.append('bukaTutupLaundry', form.bukaTutupLaundry);
+		formData.append('isValidated', form.isValidated);
 
 		ApiController({method:'POST', endpoint:'adminRegister', datas: formData}).then(response => {
 			alert('Data Berhasil Ditambahkan!');
@@ -114,7 +116,7 @@
 	<div>
 		<Input type="text" placeholder="Email" bind:value={form.email} />
 		<Input type="text" placeholder="No. Telepon" bind:value={form.notelp} />
-		<Input type="text" placeholder="Password" bind:value={form.password} />
+		<Input type="password" placeholder="Password" bind:value={form.password} isPassword="true"/>
 		<Input type="text" placeholder="Nama Laundry" bind:value={form.namaLaundry} />
 	</div>
 	<Button type="button" label="Daftar" on:click={register} />

@@ -27,10 +27,12 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@emailjs/browser": "^4.4.1",
 		"@fontsource/montserrat": "^5.0.18",
 		"axios": "^1.6.7",
 		"calendar": "^0.1.1",
 		"chart.js": "^4.4.3",
+		"emailjs": "^4.0.3",
 		"flatpickr": "^4.6.13",
 		"jspdf": "^2.5.1",
 		"mapbox-gl": "^3.4.0",

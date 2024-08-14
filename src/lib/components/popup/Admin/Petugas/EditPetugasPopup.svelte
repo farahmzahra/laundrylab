@@ -54,7 +54,7 @@
       <Input type="text" placeholder="Email Petugas" bind:value={form.email_petugas} disabled={true} />
     </div>
     <div class="centered-items">
-      <Input type="text" placeholder="Password Petugas" bind:value={form.password_petugas} />
+      <Input type="password" placeholder="Password Petugas" bind:value={form.password_petugas} isPassword="true" />
     </div>
     <div class="centered-items">
       <h3>Foto Profil Petugas</h3>

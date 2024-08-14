@@ -25,6 +25,8 @@
     let showEditPetugasPopup = false;
     let showAddKategoriPopup = false;
     let showEditKategoriPopup = false;
+    let tabs = ['Kategori', 'Petugas', 'Penilaian Pelanggan'];
+  	let activeTab = 'Kategori';
 
     let form = {
 		id_petugas: '',
@@ -432,225 +434,85 @@
 		<img src="{logo}" class="logo" alt="Logo">
 	</div>
 	<div class="scrollable">
+		<div class="menu-bar">
+		  {#each tabs as tab}
+		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
+		      {tab}
+		    </div>
+		  {/each}
+		</div>
 		<br>
-		<div class="card-row">
-			<div class="title">Kategori</div>
-			<a href="javascript:void(0)" on:click={() => showAddKategoriPopup = true}><div class="sub-title">Tambah</div></a>
-		</div>
-		<!-- {#if categories.length > 0}
-			{#each categories as user}
-				{#if user.categoryType === 'cuci_kering'}
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">Cuci Kering</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{:else if user.categoryType === 'cuci_setrika_reguler' }
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">Cuci Setrika Reguler</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{:else if user.categoryType === 'cuci_setrika_kilat' }
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">Cuci Setrika Kilat</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{:else if user.categoryType === 'cuci_bedcover_selimut' }
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">Cuci Bed Cover dan Selimut</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{:else if user.categoryType === 'setrika' }
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">Setrika</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{:else if user.categoryType === 'lainnya' }
-					<div class="card-info-border">
-						<div class="card-row-spaceless">
-							<div class="space-style">
-								<div class="card-title">{user.categoryName}</div>
-							</div>
-							<div class="space-style">
-								<div class="card-caption"></div>
-							</div>
-						</div>
-						<div class="card-row-spaceless">
-				            <div class="space-style">
-				                <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.harga}</div>
-				                <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {user.keterangan}</div>
-				            </div>
-				            <div class="space-style">
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handleKategoriClick(user.idKategori)}>Ubah</a>
-
-				                </div>
-				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deleteKategori(user.idKategori)}>Hapus</a></div>
-				            </div>
-				        </div>
-					</div>
-				{/if}
-			{/each}
-		{:else}
-			<p>No data</p>
-		{/if} -->
-		{#if categories.length > 0}
-		    {#each categories as category}
-		        <div class="card-info-border">
-		            <div class="card-row-spaceless">
-		                <div class="space-style">
-		                    <div class="card-title">{category.categoryName}</div>
-		                </div>
-		                <div class="space-style">
-		                    <div class="card-caption"></div>
-		                </div>
-		            </div>
-		            <div class="card-row-spaceless">
-		                <div class="space-style">
-		                    <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {category.harga}</div>
-		                    <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {category.keterangan}</div>
-		                </div>
-		                <div class="space-style">
-		                    <div class="card-title-secondary" style="text-align: right;">
-		                        <a href="javascript:void(0)" on:click={() => handleKategoriClick(category.idKategori)}>Ubah</a>
-		                    </div>
-		                    <div class="card-title-secondary" style="text-align: right;">
-		                        <a href="javascript:void(0)" on:click={() => deleteKategori(category.idKategori)}>Hapus</a>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    {/each}
-		{:else}
-		    <p>Belum ada Data</p>
-		{/if}
-		<div class="card-row">
-			<div class="title">Petugas</div>
-			<a href="javascript:void(0)" on:click={() => showAddPetugasPopup = true}><div class="sub-title">Tambah</div></a>
-		</div>
-		{#if users.length > 0}
-			{#each users as user}
-				<div class="card-info-border">
-					<div class="card-row-spaceless">
-						<div class="space-style">
-							<div class="card-title">{user.nama_petugas} | {user.notelp_petugas}</div>
-						</div>
-						<div class="space-style">
-							<div class="card-caption"></div>
-						</div>
-					</div>
-					<div class="card-row-spaceless">
-			            <div class="space-style">
-			                <div class="card-caption" style="text-align: left;">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.email_petugas}</div>
-			                <div class="card-caption" style="text-align: left;">Password&nbsp;&nbsp;: {user.password_petugas}</div>
-			            </div>
-			            <div class="space-style">
-			                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handlePetugasClick(user.id_petugas)}>Ubah</a>
-
+		{#if activeTab === 'Kategori'}
+			<div class="card-row">
+				<a href="javascript:void(0)" on:click={() => showAddKategoriPopup = true}><div class="sub-title">Tambah</div></a>
+			</div>
+			{#if categories.length > 0}
+			    {#each categories as category}
+			        <div class="card-info-border">
+			            <div class="card-row-spaceless">
+			                <div class="space-style">
+			                    <div class="card-title">{category.categoryName}</div>
 			                </div>
-			                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deletePetugas(user.id_petugas)}>Hapus</a></div>
+			                <div class="space-style">
+			                    <div class="card-caption"></div>
+			                </div>
+			            </div>
+			            <div class="card-row-spaceless">
+			                <div class="space-style">
+			                    <div class="card-caption" style="text-align: left;">Harga&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {category.harga}</div>
+			                    <div class="card-caption" style="text-align: left;">Keterangan&nbsp;&nbsp;: {category.keterangan}</div>
+			                </div>
+			                <div class="space-style">
+			                    <div class="card-title-secondary" style="text-align: right;">
+			                        <a href="javascript:void(0)" on:click={() => handleKategoriClick(category.idKategori)}>Ubah</a>
+			                    </div>
+			                    <div class="card-title-secondary" style="text-align: right;">
+			                        <a href="javascript:void(0)" on:click={() => deleteKategori(category.idKategori)}>Hapus</a>
+			                    </div>
+			                </div>
 			            </div>
 			        </div>
-				</div>
-			{/each}
-		{:else}
-			<p>Belum ada Data</p>
-		{/if}
+			    {/each}
+			{:else}
+			    <p>Belum ada Data</p>
+			{/if}
+		{:else if activeTab === 'Petugas'}
+			<div class="card-row">
+				<a href="javascript:void(0)" on:click={() => showAddPetugasPopup = true}><div class="sub-title">Tambah</div></a>
+			</div>
+			{#if users.length > 0}
+				{#each users as user}
+					<div class="card-info-border">
+						<div class="card-row-spaceless">
+							<div class="space-style">
+								<div class="card-title">{user.nama_petugas} | {user.notelp_petugas}</div>
+							</div>
+							<div class="space-style">
+								<div class="card-caption"></div>
+							</div>
+						</div>
+						<div class="card-row-spaceless">
+				            <div class="space-style">
+				                <div class="card-caption" style="text-align: left;">Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {user.email_petugas}</div>
+				                <div class="card-caption" style="text-align: left;">Password&nbsp;&nbsp;: {user.password_petugas}</div>
+				            </div>
+				            <div class="space-style">
+				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={handlePetugasClick(user.id_petugas)}>Ubah</a>
 
+				                </div>
+				                <div class="card-title-secondary" style="text-align: right;"><a href="javascript:void(0)" on:click={() => deletePetugas(user.id_petugas)}>Hapus</a></div>
+				            </div>
+				        </div>
+					</div>
+				{/each}
+			{:else}
+				<p>Belum ada Data</p>
+			{/if}
+		{:else if activeTab === 'Penilaian Pelanggan'}
 <!-- 		{#if allRates !== -1} -->
-        <div class="card-row">
-            <div class="title">Penilaian</div>
-        </div>
-        <div class="scrollable-x">
-            <div class="laundry-list">
+<!-- 	        <div class="card-row">
+	            <div class="title">Penilaian</div>
+	        </div> -->
             {#if allRates.length > 0}
                 {#each allRates as rate}
                 <div class="card-info-border">
@@ -673,8 +535,7 @@
 	        {:else}
 	        	<p>Belum ada Data</p>
 	        {/if}
-            </div>
-        </div>
+	    {/if}
 	</div>
 	<br><br><br>
 	<AdminNavbar />

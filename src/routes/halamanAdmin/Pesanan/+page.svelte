@@ -22,6 +22,9 @@
   	let order = [];
   	let dataPetugas = [];
   	let selectedPetugas = '';
+    let searchName = '';
+    let searchDate = '';
+    let searchTime = '';
 
   	let form = {
         nama: '',
@@ -68,16 +71,33 @@
 
             if (response && response.data && response.data.success) {
                 order = response.data.orders;
+
+                const currentDate = new Date();
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+
+                order = order.filter(pesanan => {
+                    const statusAtIndex6 = pesanan.statusPesanan[6] || {};
+                    const isActive = statusAtIndex6.active === 'true';
+                    const orderDate = new Date(`${statusAtIndex6.tanggal} ${statusAtIndex6.waktu}`);
+
+                    return !(isActive && orderDate < oneMonthAgo);
+                });
+
+                order.sort((a, b) => {
+                    const dateTimeA = new Date(`${a.statusPesanan[0]?.tanggal} ${a.statusPesanan[0]?.waktu}`);
+                    const dateTimeB = new Date(`${b.statusPesanan[0]?.tanggal} ${b.statusPesanan[0]?.waktu}`);
+                    return dateTimeB - dateTimeA;
+                });
+
                 for (let i = 0; i < order.length; i++) {
                     const emailUser = order[i].emailUser;
                     await getLaundryDetails(emailUser, i);
-                    // if (order[i].emailPetugas) {
-                    //     await getPetugasDetails(order[i].emailPetugas);
-                    // }
                     if (order[i].emailPetugas) {
                         await getPetugasDetails(order[i].emailPetugas, i);
                     }
                 }
+
                 console.log(order);
             } else {
                 console.error('Failed to fetch orders:', response ? response.data.error : 'No response from server');
@@ -258,6 +278,36 @@
             console.error('Error updating status:', error);
         }
     }
+
+    // function filteredOrders() {
+    //     return order.filter(pesanan => {
+    //         // const matchesName = searchName ? pesanan.petugasDetails?.nama_petugas?.toLowerCase().includes(searchName.toLowerCase()) : true;
+    //         const matchesName = searchName ? (
+    //             pesanan.petugasDetails[0]?.nama_petugas?.toLowerCase().includes(searchName.toLowerCase()) || 
+    //             pesanan.laundryDetails?.nama?.toLowerCase().includes(searchName.toLowerCase())
+    //           ) : true;
+    //         const matchesDate = searchDate ? pesanan.statusPesanan.some(status => status.tanggal === searchDate) : true;
+    //         const matchesTime = searchTime ? pesanan.statusPesanan.some(status => status.waktu === searchTime) : true;
+
+    //         return matchesName && matchesDate && matchesTime;
+    //     });
+    // }
+
+    function filteredOrders() {
+        return order.filter(pesanan => {
+            // const matchesName = searchName ? (
+            //     pesanan.petugasDetails?.some(petugas => 
+            //         petugas.nama_petugas?.toLowerCase().includes(searchName.toLowerCase())
+            //     ) || 
+            //     pesanan.laundryDetails?.nama?.toLowerCase().includes(searchName.toLowerCase())
+            // ) : true;
+            const matchesName = searchName ? pesanan.laundryDetails?.nama?.toLowerCase().includes(searchName.toLowerCase()) : true;
+            const matchesDate = searchDate ? pesanan.statusPesanan.some(status => status.tanggal === searchDate) : true;
+            const matchesTime = searchTime ? pesanan.statusPesanan.some(status => status.waktu === searchTime) : true;
+
+            return matchesName && matchesDate && matchesTime;
+        });
+    }
 </script>
 
 <svelte:head>
@@ -275,6 +325,10 @@
 		<div class="card-row">
 			<div class="title">Pesanan</div>
 		</div>
+        <div>
+            <input type="text" placeholder="Cari Pelanggan" bind:value={searchName} style="width: 225px;" />
+            <input type="date" placeholder="Search by Date" bind:value={searchDate} style="width: 175px;" />
+        </div>
 		<div class="scrollable-x menu-bar">
 		  {#each tabs as tab}
 		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
@@ -283,264 +337,378 @@
 		  {/each}
 		</div>
 		<div class="content">
-            {#each order as pesanan}
-            	<!-- {#if activeTab === 'Semua'}
-            		<div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[0].tanggal}</div>
-                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[0].waktu}</div>
-                            </div>
-                            <select bind:value={selectedPetugas} class="dropdown-style" style="width:150px">
-						        <option disabled selected value="">Pilih Petugas</option>
-						        {#each dataPetugas as petugas}
-						          <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
-						        {/each}
-						    </select>
-                        </div>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={() => setPetugas(pesanan)}>Set Petugas</button>
-                            </div>
-                        </div>
-                        
-                    </div> -->
-	            {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: </div>
-                                <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[0].tanggal} | {pesanan.statusPesanan[0].waktu}</div>
-                            </div>
-<!--                             <select bind:value={selectedPetugas} class="dropdown-style" style="width:150px">
-						        <option disabled selected value="">Pilih Petugas</option>
-						        {#each dataPetugas as petugas}
-						          <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
-						        {/each}
-						    </select> -->
-						    <select bind:value={pesanan.selectedPetugas} class="dropdown-style" style="width:150px">
-						        <option disabled selected value="">Pilih Petugas</option>
-						        {#each dataPetugas as petugas}
-						            <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
-						        {/each}
-						    </select>
-                        </div>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={() => setPetugas(pesanan)}>Set Petugas</button>
-                            </div>
-                        </div>
-                    </div>
-                    {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
-			        <div class="card-info-border">
-			            <div class="card-row-spaceless">
-			                <div class="space-style">
-			                    <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-			                </div>
-			                <div class="space-style">
-			                    <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
-			                </div>
-			            </div>
-			            <div class="card-row-spaceless">
-			                <div class="space-style">
-			                    <div class="card-caption" style="text-align: left;">Waktu Menunggu Penjemputan: </div>
-                                <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
-			                </div>
-			                <div class="space-style">
-			                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
-			                </div>
-			            </div>
-			        </div>
-                    {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Tanggal Petugas Menjemput: </div>
-                                <div class="card-caption" style="text-align: left;">W{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
-                            </div>
-                        </div>
-                    </div>
-                    {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
-                    <div class="card-info-border">
-                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+            {#if searchName == "" && searchDate == "" && searchTime == ""}
+                {#each order as pesanan}
+                	<!-- {#if activeTab === 'Semua'}
+                		<div class="card-info-border">
                             <div class="card-row-spaceless">
                                 <div class="space-style">
                                     <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
                                 </div>
                                 <div class="space-style">
-                                    <div class="status-text" style="text-align: right;">Diproses</div>
+                                    <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
                                 </div>
                             </div>
                             <div class="card-row-spaceless">
                                 <div class="space-style">
-                                    <div class="card-caption" style="text-align: left;">Tanggal Pesanan Diproses: </div>
-                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+                                    <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[0].tanggal}</div>
+                                    <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[0].waktu}</div>
+                                </div>
+                                <select bind:value={selectedPetugas} class="dropdown-style" style="width:150px">
+    						        <option disabled selected value="">Pilih Petugas</option>
+    						        {#each dataPetugas as petugas}
+    						          <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
+    						        {/each}
+    						    </select>
+                            </div>
+                            <div class="card-row-spaceless">
+                            	<div class="space-style" style="text-align: right;">
+                                    <button type="button" on:click={() => setPetugas(pesanan)}>Set Petugas</button>
+                                </div>
+                            </div>
+                            
+                        </div> -->
+    	            {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
+                        <div class="card-info-border">
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
+                                </div>
+                            </div>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Pemesanan: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[0].tanggal} | {pesanan.statusPesanan[0].waktu}</div>
+                                </div>
+    <!--                             <select bind:value={selectedPetugas} class="dropdown-style" style="width:150px">
+    						        <option disabled selected value="">Pilih Petugas</option>
+    						        {#each dataPetugas as petugas}
+    						          <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
+    						        {/each}
+    						    </select> -->
+    						    <select bind:value={pesanan.selectedPetugas} class="dropdown-style" style="width:150px">
+    						        <option disabled selected value="">Pilih Petugas</option>
+    						        {#each dataPetugas as petugas}
+    						            <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
+    						        {/each}
+    						    </select>
+                            </div>
+                            <div class="card-row-spaceless">
+                            	<div class="space-style" style="text-align: right;">
+                                    <button type="button" on:click={() => setPetugas(pesanan)}>Set Petugas</button>
+                                </div>
+                            </div>
+                        </div>
+                        {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
+    			        <div class="card-info-border">
+    			            <div class="card-row-spaceless">
+    			                <div class="space-style">
+    			                    <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+    			                </div>
+    			                <div class="space-style">
+    			                    <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
+    			                </div>
+    			            </div>
+    			            <div class="card-row-spaceless">
+    			                <div class="space-style">
+    			                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
+    			                </div>
+    			                <div class="space-style">
+    			                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+    			                </div>
+    			            </div>
+    			        </div>
+                        {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
+                        <div class="card-info-border">
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                </div>
+                                <div class="space-style">
+                                    <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
+                                </div>
+                            </div>
+                            <div class="card-row-spaceless">
+                                <div class="space-style">
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">W{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
                                 </div>
                                 <div class="space-style">
                                     <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
+                        <div class="card-info-border">
+                            <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Diproses</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="card-row-spaceless">
+                                <div class="space-style" style="text-align: right;">
+                                    <button type="button" on:click={() => updateDiproses(pesanan)}>Selesai Diproses</button>
+                                </div>
+                            </div>
+                        </div>
+                        {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
                                 </div>
                             </div>
                         </a>
-                        <div class="card-row-spaceless">
-                            <div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={() => updateDiproses(pesanan)}>Selesai Diproses</button>
+                        {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
-                    <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                        </a>
+                        {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Selesai</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+    	            {/if}
+                {/each}
+            {:else}
+                {#each filteredOrders() as pesanan}
+                    {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
                         <div class="card-info-border">
                             <div class="card-row-spaceless">
                                 <div class="space-style">
                                     <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
                                 </div>
                                 <div class="space-style">
-                                    <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+                                    <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
                                 </div>
                             </div>
                             <div class="card-row-spaceless">
                                 <div class="space-style">
-                                    <div class="card-caption" style="text-align: left;">Tanggal Menunggu Diantar: </div>
-                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Pemesanan: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[0].tanggal} | {pesanan.statusPesanan[0].waktu}</div>
                                 </div>
-                                <div class="space-style">
-                                    <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+    <!--                             <select bind:value={selectedPetugas} class="dropdown-style" style="width:150px">
+                                    <option disabled selected value="">Pilih Petugas</option>
+                                    {#each dataPetugas as petugas}
+                                      <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
+                                    {/each}
+                                </select> -->
+                                <select bind:value={pesanan.selectedPetugas} class="dropdown-style" style="width:150px">
+                                    <option disabled selected value="">Pilih Petugas</option>
+                                    {#each dataPetugas as petugas}
+                                        <option value={petugas.nama_petugas}>{petugas.nama_petugas}</option>
+                                    {/each}
+                                </select>
+                            </div>
+                            <div class="card-row-spaceless">
+                                <div class="space-style" style="text-align: right;">
+                                    <button type="button" on:click={() => setPetugas(pesanan)}>Set Petugas</button>
                                 </div>
                             </div>
                         </div>
-                    </a>
-                    {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
-                    <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                        {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
                         <div class="card-info-border">
                             <div class="card-row-spaceless">
                                 <div class="space-style">
                                     <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
                                 </div>
                                 <div class="space-style">
-                                    <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+                                    <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
                                 </div>
                             </div>
                             <div class="card-row-spaceless">
                                 <div class="space-style">
-                                    <div class="card-caption" style="text-align: left;">Tanggal Petugas Mengantar: </div>
-                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
                                 </div>
                                 <div class="space-style">
                                     <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
                                 </div>
                             </div>
                         </div>
-                    </a>
-                    {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
-                    <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                        {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
                         <div class="card-info-border">
                             <div class="card-row-spaceless">
                                 <div class="space-style">
                                     <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
                                 </div>
                                 <div class="space-style">
-                                    <div class="status-text" style="text-align: right;">Selesai</div>
+                                    <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
                                 </div>
                             </div>
                             <div class="card-row-spaceless">
                                 <div class="space-style">
-                                    <div class="card-caption" style="text-align: left;">Tanggal Pesanan Selesai: </div>
-                                    <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
+                                    <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">W{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
                                 </div>
                                 <div class="space-style">
                                     <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
                                 </div>
                             </div>
                         </div>
-                    </a>
-                    <!-- {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[1].tanggal}</div>
-                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[1].waktu}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? pesanan.petugasDetails[0]?.nama_petugas : 'Loading...'}</div>
-                            </div>
-                        </div>
-                    </div> -->
-<!-- 	            {:else}
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.namaLaundry || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">----</div>
+                        {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
+                        <div class="card-info-border">
+                            <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Diproses</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="card-row-spaceless">
+                                <div class="space-style" style="text-align: right;">
+                                    <button type="button" on:click={() => updateDiproses(pesanan)}>Selesai Diproses</button>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-row-spaceless">
-                            <img src="{category2}" class="img-icon-cat" style="margin-right: 10px">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Cuci Setrika</div>
-                                <div class="card-caption" style="text-align: left;">2kg</div>
+                        {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: right;">Rp. 5,000</div>
-                                <div class="card-caption-bold" style="text-align: right;">Total Bayar: Rp. 10,000</div>
+                        </a>
+                        {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div> -->
-	            {/if}
-            {/each}
-<!--        <div class="card-info-border">
-	            <div class="card-row-spaceless">
-	                <div class="space-style">
-	                    <div class="card-title">Nama Lengkap</div>
-	                    <div class="card-caption">1 kg Cuci Setrika</div>
-	                    <div class="card-caption">Rp 5.000</div>
-	                </div>
-	                <div class="status-text">Diterima</div>
-	            </div><br>
-	            <div class="card-row-spaceless">
-	                <div class="space-style">
-	                    <div class="card-caption">14 Des 2023, 13.00</div>
-	                    <div class="card-caption">17 Des 2023</div>
-	                </div>
-	                <Button type="button" label="Jemput"  />
-	            </div>
-	        </div> -->
+                        </a>
+                        {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
+                        <a sveltekit:prefetch href="{`/halamanAdmin/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+                            <div class="card-info-border">
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="status-text" style="text-align: right;">Selesai</div>
+                                    </div>
+                                </div>
+                                <div class="card-row-spaceless">
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
+                                        <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+                                    </div>
+                                    <div class="space-style">
+                                        <div class="card-caption" style="text-align: right;">Petugas: {pesanan.petugasDetails ? (pesanan.petugasDetails[0]?.nama_petugas || 'Loading...') : 'Loading...'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {/if}
+                {/each}
+            {/if}
         </div>
 	</div>
 	<br><br><br>

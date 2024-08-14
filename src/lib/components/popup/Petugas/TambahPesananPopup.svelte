@@ -30,6 +30,17 @@
 
   function saveChanges() {
     calculateTotalBayar();
+
+    if (!pesananForm.pesanan || !pesananForm.catatan || !pesananForm.buktiPembayaran) {
+        alert('Semua kolom harus terisi!');
+        return;
+    }
+
+    // if (!pesananForm.pesanan.length || !pesananForm.catatan || !pesananForm.buktiPembayaran) {
+    //   alert('Semua kolom harus terisi!');
+    //   return;
+    // }
+
     dispatch('save', pesananForm);
   }
 

@@ -464,6 +464,10 @@
 		<div class="card-row">
 			<div class="title">Pesanan</div>
 		</div>
+		<div>
+            <input type="text" placeholder="Cari Laundry" style="width: 225px;" />
+            <input type="date" placeholder="Search by Date" style="width: 175px;" />
+        </div>
 		<div class="scrollable-x menu-bar">
 		  {#each tabs as tab}
 		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
@@ -508,8 +512,8 @@
 
                         <div class="card-row-spaceless">
                             <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Waktu Menunggu Penjemputan: </div>
-                                <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
+                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
+                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
                             </div>
                             <div class="space-style">
                                 <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
@@ -541,8 +545,8 @@
                         </div>
                         <div class="card-row-spaceless">
                             <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Tanggal Petugas Menjemput: </div>
-                                <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
+                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
+                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
                             </div>
                             <div class="space-style">
                                 <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
@@ -575,8 +579,8 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left;">Tanggal Pesanan Diproses: </div>
-                                	<div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
+                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
@@ -607,8 +611,8 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left;">Tanggal Menunggu Diantar: </div>
-                                	<div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
+                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
@@ -642,8 +646,8 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left;">Tanggal Petugas Mengantar: </div>
-                                	<div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
+                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
@@ -677,8 +681,8 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left;">Tanggal Pesanan Selesai: </div>
-                                <div class="card-caption" style="text-align: left;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
+                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>

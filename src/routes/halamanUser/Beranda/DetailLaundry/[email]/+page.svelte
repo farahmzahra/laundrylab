@@ -14,6 +14,9 @@
 
 	$: email = $page.params.email;
 
+	let tabs = ['Kategori', 'Jam Operasional', 'Penilaian Pelanggan'];
+  	let activeTab = 'Kategori';
+
  	export let latitude = 0.5629111224534288;
   	export let longitude = 101.4421451952098;
   	let showPilihAlamatPopup = false;
@@ -21,6 +24,7 @@
 	let users = [];
     let allRates = [];
     let completedOrdersCount = 0;
+    let sumRates = {};
 
   	let form = {
 	    fullName: '',
@@ -222,7 +226,11 @@
 
             if (response && response.data && response.data.success) {
                 allRates = response.data.rates;
+                for (const laundryRates of allRates) {
+                    sumRates[laundryRates.emailLaundry] = await generateSumRate(laundryRates.emailLaundry);
+                }
                 console.log(allRates);
+                console.log(sumRates);
             } else {
                 console.error('Failed to fetch admin:', response ? response.data.error : 'No response from server');
             }
@@ -367,6 +375,34 @@
             console.error('Error fetching orders:', error);
         }
     }
+
+    async function generateSumRate(email) {
+        const token = localStorage.getItem("token");
+        let sumRate = 0;
+        let numberOfRates = 0;
+
+        try {
+            const response = await ApiController({
+                method: 'GET',
+                endpoint: `getAllPenilaianByLaundry/${email}`,
+                token: token
+            });
+
+            if (response && response.data && response.data.success) {
+                const rates = response.data.rates;
+                sumRate = rates.reduce((total, rate) => {
+                    return total + parseInt(rate.rate, 10);
+                }, 0);
+                numberOfRates = rates.length;
+            } else {
+                console.error('Failed to fetch rates:', response ? response.data.error : 'No response from server');
+            }
+        } catch (error) {
+            console.error('Error fetching rates:', error);
+        }
+
+        return numberOfRates > 0 ? sumRate / numberOfRates : 0;
+    }
 </script>
 
 <style>
@@ -390,7 +426,9 @@
 			<div class="sub-big-title">{form.fullName}</div>
 		</div>
 		<div class="card-row centered-items">
-			<div class="card-title-smaller">{completedOrdersCount} Pesanan Selesai</div>
+			<!-- <div class="card-title-smaller">{completedOrdersCount} Pesanan Selesai</div> -->
+			<img src="{star}" class="img-icon-star" alt="Star 1">
+			<div class="card-title-smaller" style="margin-top: 5px;">{sumRates[form.email]?.toFixed(1) || 'N/A'} </div>
 		</div>
 		<div style="width: 400px">
 			<div id="map"></div>
@@ -410,69 +448,99 @@
                 </div>
             </div>
 		</div>
-		<div class="card-row">
-			<div class="title">Kategori</div>
+		<div class="menu-bar">
+		  {#each tabs as tab}
+		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
+		      {tab}
+		    </div>
+		  {/each}
 		</div>
-		{#each categories as user}
-			<div class="card-info-border">
-				<div class="card-row-spaceless">
-					<img src="/assets/cuci-kering.png" class="img-icon-cat" style="margin-right: 10px;">
-					<div>
-						<div class="card-title">{user.categoryName}</div>
-						<div class="card-caption">Rp. {user.harga}</div>
-						<div class="card-caption">Keterangan: {user.keterangan}</div>
+<!-- 		<div class="card-row">
+			<div class="title">Kategori</div>
+		</div> -->
+		{#if activeTab === 'Kategori'}
+			{#each categories as user}
+				<div class="card-info-border">
+					<div class="card-row-spaceless">
+						<img src="/assets/cuci-kering.png" class="img-icon-cat" style="margin-right: 10px;">
+						<div>
+							<div class="card-title">{user.categoryName}</div>
+							<div class="card-caption">Rp. {user.harga}</div>
+							<div class="card-caption">Keterangan: {user.keterangan}</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		{/each}
-		<div class="card-info-border">
-            <div class="card-row">
-                <div>
-                    <div class="card-row-spaceless">
-                        <div>
-                            <div class="card-title">Jam Operasional</div>
-                            {#each operasionalForm.days as day}
-                                <div class="card-caption">
-                                	<table>
-                                		<tr>
-                                			<td>{day.name}</td>
-                                			<td>{day.jamBuka} - {day.jamTutup}</td>
-                                		</tr>
-                                	</table>
-                                </div>
-                            {/each}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {#if allRates !== -1}
-        <div class="card-row">
-            <div class="title">Penilaian</div>
-        </div>
-        <div class="scrollable-x">
-            <div class="laundry-list">
-                {#each allRates as rate}
-                <div class="card-info-border">
-                    <div class="card-row">
-                        <div>
-                            <div class="card-title">{censorName(rate.emailUser)}</div>
-                            <div class="card-caption-bigger">"{rate.ulasan}"</div>
-                        </div>
-                        <div>
-                            <div class="card-review">
-                                {#each { length: 5 } as _, i}
-                                    <img src="{i < rate.rate ? star : disableStar}" alt="star" class="img-icon-star">
-                                {/each}
-                            </div><br>
-                            <div class="card-caption">{rate.tanggal}</div>
-                        </div>
-                    </div>
-                </div>
-                {/each}
-            </div>
-        </div>
-        {/if}
+			{/each}
+		{:else if activeTab === 'Jam Operasional'}
+			<div class="card-info-border">
+	            <div class="card-row">
+	                <div>
+	                    <div class="card-row-spaceless">
+	                        <div>
+	                            {#each operasionalForm.days as day}
+	                                <div class="card-caption">
+	                                	<table>
+	                                		<tr>
+	                                			<td class="card-title">{day.name}</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="card-title-secondary">{day.jamBuka} - {day.jamTutup}</td>
+	                                		</tr><br>
+	                                	</table>
+	                                </div>
+	                            {/each}
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    {:else if activeTab === 'Penilaian Pelanggan'}
+	        {#if allRates !== -1}
+<!-- 	        <div class="card-row">
+	            <div class="title">Penilaian</div>
+	        </div> -->
+	        <!-- <div class="scrollable-x">
+	            <div class="laundry-list">
+	                {#each allRates as rate}
+	                <div class="card-info-border">
+	                    <div class="card-row">
+	                        <div>
+	                            <div class="card-title">{censorName(rate.emailUser)}</div>
+	                            <div class="card-caption-bigger">"{rate.ulasan}"</div>
+	                        </div>
+	                        <div>
+	                            <div class="card-review">
+	                                {#each { length: 5 } as _, i}
+	                                    <img src="{i < rate.rate ? star : disableStar}" alt="star" class="img-icon-star">
+	                                {/each}
+	                            </div><br>
+	                            <div class="card-caption">{rate.tanggal}</div>
+	                        </div>
+	                    </div>
+	                </div>
+	                {/each}
+	            </div>
+	        </div> -->
+            {#each allRates as rate}
+	            <div class="card-info-border">
+	                <div class="card-row">
+	                    <div>
+	                        <div class="card-title">{censorName(rate.emailUser)}</div>
+	                        <div class="card-caption-bigger">"{rate.ulasan}"</div>
+	                    </div>
+	                    <div>
+	                        <div class="card-review">
+	                            {#each { length: 5 } as _, i}
+	                                <img src="{i < rate.rate ? star : disableStar}" alt="star" class="img-icon-star">
+	                            {/each}
+	                        </div><br>
+	                        <div class="card-caption">{rate.tanggal}</div>
+	                    </div>
+	                </div>
+	            </div>
+            {/each}
+	        {/if}
+	    {/if}
 		<br><br>
 		<br><br>
 	</div>

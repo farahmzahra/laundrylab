@@ -13,6 +13,50 @@
 	color: var(--color-text);
 }
 
+.icon-eye {
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  top: 13px;
+  left: 87%;
+  cursor: pointer;
+}
+
+.justify-center{
+  justify-content: center;
+}
+
+.center-all {
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.position-password {
+  position: relative;
+}
+
+.card-row-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.icon-next-previous{
+  width: 10px;
+  padding: 15px;
+  background-color: #92d2c7;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.next-previous-button {
+  margin-bottom: 10px;
+  display: flex;
+  grid-gap: 10px;
+}
+
 /* desktop viewport */
 @media (min-width: 500px) {
 	.container {
@@ -565,11 +609,11 @@ span {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
-
+  width: 150px;
 }
 
 .location-container {
-  margin-top: 15px;
+  width: 150px;
 }
 
 .location-button:hover {
@@ -619,6 +663,7 @@ span {
 	display: flex;
 	flex-wrap: nowrap;
 	gap: 10px;
+  width: 100%;
 }
 
 .laundry-image-container {

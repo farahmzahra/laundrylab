@@ -5,13 +5,17 @@
 	import Button from '$lib/components/button.svelte';
 	import ApiController from '../ApiController.js';
 	import '@fontsource/montserrat';
+	import emailjs from '@emailjs/browser';
+
+	let showPassword = "password"
 
 	let form = { 
 		idUser: "",
 		nama: "",
 		email: "",
 		notelp: "",
-		password: ""
+		password: "",
+		isValidated: "no"
 	}
 
 	let users = [];
@@ -72,10 +76,26 @@
 		formData.append('email', form.email);
 		formData.append('notelp', form.notelp);
 		formData.append('password', form.password);
+		formData.append('isValidated', form.isValidated);
 
 		ApiController({method:'POST', endpoint:'userRegister', datas: formData}).then(response => {
-			alert('Data Berhasil Ditambahkan!');
-			window.location.href = '/'
+			alert('Mohon ditunggu, menambahkan data anda...');
+			let templateParams = {
+			  link_verification: `http://localhost:5173/emailVerification?email=${form.email}&role=user`,
+			  user_email: form.email,
+			  reply_to: 'goddessflowerss@gmail.com'
+			};
+			  emailjs.send("service_x5gcvzg","template_hb5m33o", templateParams, {publicKey: 'UhKTTYlGVnFAdVBzR'
+			  }).then(
+			  (response) => {
+			    console.log('SUCCESS!', response.status, response.text);
+			    alert('Data Berhasil Ditambahkan! Validasi Email Untuk Dapat Login!');
+				window.location.href = '/'
+			  },
+			  (error) => {
+			    console.log('FAILED...', error);
+			  },
+			);
 		})
 	}
 
@@ -113,7 +133,7 @@
 		<Input type="text" placeholder="Nama Lengkap" bind:value={form.nama} />
 		<Input type="text" placeholder="Email" bind:value={form.email} />
 		<Input type="text" placeholder="No. Telepon" bind:value={form.notelp} />
-		<Input type="text" placeholder="Password" bind:value={form.password} />
+		<Input type="password" placeholder="Password" bind:value={form.password} isPassword="true"/>
 	</div>
 	<Button type="button" label="Daftar" on:click={register} />
 	<h3>Sudah Punya Akun? <a href="/">Masuk Sekarang</a></h3>

@@ -43,6 +43,7 @@
 
 	    function postLogin(formData) {
 	        ApiController({method:'POST', endpoint:'login', datas: formData}).then(response => {
+	        	console.log(response)
 	            if (response.data.validator == 'user') {
 	            	localStorage.setItem('isAuthenticated', 'true');
 	        		if (localStorage.getItem('isAuthenticated')) {
@@ -50,7 +51,7 @@
 	        			localStorage.setItem('email', formData.get('email'));
 	        			localStorage.setItem('role', response.data.validator);
 	        			localStorage.setItem('token', response.data.token);
-	                	window.location.href = '/halamanUser/Beranda'
+	                	// window.location.href = '/halamanUser/Beranda'
 	        		} else {
 	        			alert('User doesnt authenticated');
 	        		}
@@ -77,8 +78,10 @@
 	        		} else {
 	        			alert('User doesnt authenticated');
 	        		}
-	            } else {
+	            } else if (response.data.validator == 'incorrect') {
 	                alert('Email/Password salah, silahkan coba lagi!')
+	            } else {
+	            	alert('Validasi email anda terlebih dahulu!')
 	            }
 	            console.log(response.data.token)
 	        })
