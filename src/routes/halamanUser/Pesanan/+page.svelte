@@ -7,11 +7,13 @@
     import category1 from '$lib/images/cuci-setrika.png';
     import category2 from '$lib/images/cuci-kering.png';
     import category3 from '$lib/images/setrika.png';
-    import arrowLeft from '$lib/images/left-arrow.png';
+    import leftArr from '$lib/images/left-arrow.png';
     import arrow from '$lib/images/down-arrow.png';
     import Button from '$lib/components/button.svelte';
 	import TambahPenilaianPopup from '$lib/components/popup/User/TambahPenilaianPopup.svelte';
     import UserNavbar from '../../UserNavbar.svelte';
+    import arrowLeft from '$lib/images/left-arrow.png';
+    import arrowRight from '$lib/images/right-arrow.png';
     import ApiController from '../../ApiController.js';
     import '@fontsource/montserrat';
 
@@ -22,6 +24,7 @@
     let searchName = '';
     let searchDate = '';
     let searchTime = '';
+    let scrollNumber = 0;
 
     let form = {
         fullName: '',
@@ -348,7 +351,7 @@
 
 <svelte:head>
     <title>LaundryLab</title>
-    <meta name="description" content="" />
+    <meta name="description" content="Halaman Pesanan" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
@@ -357,7 +360,7 @@
         <div class="header" style="align-items: center;">
             <div class="title-center">
                 <a href="/halamanUser">
-                    <img src="{arrowLeft}" alt="back" class="back-arrow" />
+                    <img src="{leftArr}" alt="back" class="back-arrow" />
                 </a>
                 Pesanan Saya
             </div>
@@ -367,7 +370,31 @@
             <input type="text" placeholder="Cari Laundry" bind:value={searchName} style="width: 225px;" />
             <input type="date" placeholder="Search by Date" bind:value={searchDate} style="width: 175px;" />
         </div>
-        <div class="scrollable-x menu-bar">
+        <div class="card-row-end">
+            <div class="next-previous-button">
+               <img src="{arrowLeft}" class="icon-next-previous-backless" alt="arrow1" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    if (scrollNumber > 0) {
+                         scrollNumber -= 100;
+                         console.log(scrollNumber)
+                         scrollElem.scrollBy({
+                            left: -100,
+                            behavior: 'smooth'
+                        });
+                    }
+                }}>
+                <img src="{arrowRight}" class="icon-next-previous-backless" alt="arrow2" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    scrollNumber += 100;
+                    console.log(scrollNumber)
+                    scrollElem.scrollBy({
+                        left: 100,
+                        behavior: 'smooth'
+                    });
+                }}>
+            </div>
+        </div>
+        <div class="scrollable-x menu-bar" id="scroll">
           {#each tabs as tab}
             <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
               {tab}
@@ -375,7 +402,7 @@
           {/each}
         </div>
         <div class="content">
-            {#if searchName == "" && searchDate == "" && searchTime == ""}
+            {#if searchName == "" && searchDate == ""}
                 {#each order as pesanan}
                     {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
                         <div class="card-info-border">

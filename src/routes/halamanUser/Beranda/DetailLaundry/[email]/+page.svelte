@@ -411,7 +411,7 @@
 
 <svelte:head>
 	<title>LaundryLab</title>
-	<meta name="description" content="Halaman Detail" />
+	<meta name="description" content="Halaman Detail Laundry" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
@@ -462,7 +462,7 @@
 			{#each categories as user}
 				<div class="card-info-border">
 					<div class="card-row-spaceless">
-						<img src="/assets/cuci-kering.png" class="img-icon-cat" style="margin-right: 10px;">
+						<img src="/assets/cuci-kering.png" class="img-icon-cat" alt="kategori" style="margin-right: 10px;">
 						<div>
 							<div class="card-title">{user.categoryName}</div>
 							<div class="card-caption">Rp. {user.harga}</div>

@@ -51,7 +51,7 @@
 	        			localStorage.setItem('email', formData.get('email'));
 	        			localStorage.setItem('role', response.data.validator);
 	        			localStorage.setItem('token', response.data.token);
-	                	// window.location.href = '/halamanUser/Beranda'
+	                	window.location.href = '/halamanUser/Beranda'
 	        		} else {
 	        			alert('User doesnt authenticated');
 	        		}
@@ -105,7 +105,7 @@
 	</div>
 	<div>
 		<Input type="text" placeholder="Email" bind:value={form.email} />
-		<Input type="password" placeholder="Password" bind:value={form.password} />
+		<Input type="password" placeholder="Password" bind:value={form.password} isPassword="true" />
 	</div>
 	<Button type="button" label="Masuk" on:click={login} />
 	<h3>Belum Punya Akun? Buat Akun Baru</h3>

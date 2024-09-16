@@ -289,8 +289,32 @@
         </div>
         <div class="card-row">
             <div class="title">Kategori</div>
+            <div class="card-row-end">
+                <div class="next-previous-button">
+                   <img src="{arrowLeft}" class="icon-next-previous-backless" alt="arrow1" on:click={() => {
+                        let scrollElem = document.getElementById("scrollKat");
+                        if (scrollNumber > 0) {
+                             scrollNumber -= 100; // Decrease scrollNumber to move left
+                             console.log(scrollNumber)
+                             scrollElem.scrollBy({
+                                left: -100, // Adjust the scroll amount
+                                behavior: 'smooth' // Optional: Adds smooth scrolling
+                            });
+                        }
+                    }}>
+                    <img src="{arrowRight}" class="icon-next-previous-backless" alt="arrow2" on:click={() => {
+                        let scrollElem = document.getElementById("scrollKat");
+                        scrollNumber += 100; // Increase scrollNumber to move right
+                        console.log(scrollNumber)
+                        scrollElem.scrollBy({
+                            left: 100, // Adjust the scroll amount
+                            behavior: 'smooth' // Optional: Adds smooth scrolling
+                        });
+                    }}>
+                </div>
+            </div>
         </div>
-        <div class="scrollable-x">
+        <div class="scrollable-x" id="scrollKat">
             <div class="card-row">
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciKering/cuci_kering" on:click={(event) => handleClickKat(event, 'cuci_kering')} class="category-card">
                     <img src="{category1}" class="img-icon-cat" alt="Kategori 1">
@@ -385,43 +409,69 @@
                 <p>Isi data alamat di Menu Profil!</p>
             {/if}
         </div><br>
-        <div class="scrollable-x">
-            <div class="laundry-list ">
-                {#if nearestLaundries.length > 0}
+        {#if nearestLaundries.length > 0}
+            <div class="card-row-end">
+                <div class="next-previous-button">
+                   <img src="{arrowLeft}" class="icon-next-previous-backless" alt="arrow3" on:click={() => {
+                        let scrollElem = document.getElementById("scrollByDistance");
+                        if (scrollNumber > 0) {
+                             scrollNumber -= 100; // Decrease scrollNumber to move left
+                             console.log(scrollNumber)
+                             scrollElem.scrollBy({
+                                left: -100, // Adjust the scroll amount
+                                behavior: 'smooth' // Optional: Adds smooth scrolling
+                            });
+                        }
+                    }}>
+                    <img src="{arrowRight}" class="icon-next-previous-backless" alt="arrow4" on:click={() => {
+                        let scrollElem = document.getElementById("scrollByDistance");
+                        scrollNumber += 100; // Increase scrollNumber to move right
+                        console.log(scrollNumber)
+                        scrollElem.scrollBy({
+                            left: 100, // Adjust the scroll amount
+                            behavior: 'smooth' // Optional: Adds smooth scrolling
+                        });
+                    }}>
+                </div>
+            </div>
+            <div class="scrollable-x" id="scrollByDistance">
+                <div class="laundry-list ">
                     {#each nearestLaundries as laundry}
                         <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
-                                <div class="laundry-card">
-                                    <div class="laundry-image-container">
-                                        <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
-                                    </div>
-                                    <div class="laundry-title">{laundry.namaLaundry}</div>
+                            <div class="laundry-card">
+                                <div class="laundry-image-container">
+                                    <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
+                                </div>
+                                <div class="laundry-title">{laundry.namaLaundry}</div>
+                                <div class="laundry-col">
+                                    <div class="laundry-subtitle">{laundry.alamat}</div>
                                     <div class="laundry-col">
-                                        <div class="laundry-subtitle">{laundry.alamat}</div>
-                                        <div class="laundry-col">
-                                            <img src="{location}" alt="Location Icon" class="icon" />
-                                            <div class="laundry-subtitle">{laundry.distance.toFixed(2)} km</div>
-                                        </div>                    
-                                    </div>
+                                        <img src="{location}" alt="Location Icon" class="icon" />
+                                        <div class="laundry-subtitle">{laundry.distance.toFixed(2)} km</div>
+                                    </div>                    
+                                </div>
+                                <div class="laundry-col">
+                                    <!-- <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a> -->
+                                    {#if laundry.bukaTutupLaundry === "Buka"}
+                                        <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
+                                    {:else}
+                                        <a href="" class="sub-title" style="color: red;">{laundry.bukaTutupLaundry}</a>
+                                    {/if}
                                     <div class="laundry-col">
-                                        <!-- <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a> -->
-                                        {#if laundry.bukaTutupLaundry === "Buka"}
-                                            <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
-                                        {:else}
-                                            <a href="" class="sub-title" style="color: red;">{laundry.bukaTutupLaundry}</a>
-                                        {/if}
-                                        <div class="laundry-col">
-                                            <img src="{star}" class="img-icon-star" alt="Star 2">
-                                            <div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
-                                        </div>
+                                        <img src="{star}" class="img-icon-star" alt="Star 2">
+                                        <div class="laundry-subtitle">{sumRates[laundry.email]?.toFixed(1) || 'N/A'}</div>
                                     </div>
                                 </div>
+                            </div>
                         </a>
-                    {/each}
-                {:else}
-                    <h4>Silahkan pilih alamat terlebih dahulu!</h4>
-                {/if}
+                    {/each} 
+                </div>
             </div>
-        </div>
+        {:else}
+            <div class="centered-items">
+                <p>Silahkan pilih alamat terlebih dahulu!</p>
+            </div>
+        {/if}
         <br>
         <div class="card-row">
             <div class="title">Semua Laundry</div>
@@ -429,7 +479,7 @@
         </div><br>
         <div class="card-row-end">
             <div class="next-previous-button">
-               <img src="{arrowLeft}" class="icon-next-previous" on:click={() => {
+               <img src="{arrowLeft}" class="icon-next-previous-backless" alt="arrow5" on:click={() => {
                     let scrollElem = document.getElementById("scroll");
                     if (scrollNumber > 0) {
                          scrollNumber -= 100; // Decrease scrollNumber to move left
@@ -440,7 +490,7 @@
                         });
                     }
                 }}>
-                <img src="{arrowRight}" class="icon-next-previous" on:click={() => {
+                <img src="{arrowRight}" class="icon-next-previous-backless" alt="arrow6" on:click={() => {
                     let scrollElem = document.getElementById("scroll");
                     scrollNumber += 100; // Increase scrollNumber to move right
                     console.log(scrollNumber)
@@ -458,7 +508,6 @@
 		        <a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
 		            <div class="laundry-card">
 		                <div class="laundry-image-container">
-<!-- 		                    <img src="{laundry.profilPict ? '/uploads/' + laundry.profilPict : laundrytest}" alt="{laundry.namaLaundry}" class="laundry-image"> -->
                             <img src={laundry.profilPict} alt="{laundry.namaLaundry}" class="laundry-image">
 		                </div>
 		                <div class="laundry-title">{laundry.namaLaundry}</div>
@@ -466,7 +515,6 @@
 		                    <div class="laundry-subtitle">{laundry.alamat}</div>
 		                </div>
 		                <div class="laundry-col">
-<!-- 		                    <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a> -->
                             {#if laundry.bukaTutupLaundry === "Buka"}
                                 <a href="" class="sub-title">{laundry.bukaTutupLaundry}</a>
                             {:else}
@@ -487,8 +535,32 @@
 		</div><br>
         <div class="card-row">
             <div class="title">Penilaian</div>
+            <div class="card-row-end">
+                <div class="next-previous-button">
+                   <img src="{arrowLeft}" class="icon-next-previous-backless" alt="arrow7" on:click={() => {
+                        let scrollElem = document.getElementById("scrollRate");
+                        if (scrollNumber > 0) {
+                             scrollNumber -= 100; // Decrease scrollNumber to move left
+                             console.log(scrollNumber)
+                             scrollElem.scrollBy({
+                                left: -100, // Adjust the scroll amount
+                                behavior: 'smooth' // Optional: Adds smooth scrolling
+                            });
+                        }
+                    }}>
+                    <img src="{arrowRight}" class="icon-next-previous-backless" alt="arrow8" on:click={() => {
+                        let scrollElem = document.getElementById("scrollRate");
+                        scrollNumber += 100; // Increase scrollNumber to move right
+                        console.log(scrollNumber)
+                        scrollElem.scrollBy({
+                            left: 100, // Adjust the scroll amount
+                            behavior: 'smooth' // Optional: Adds smooth scrolling
+                        });
+                    }}>
+                </div>
+            </div>
         </div>
-        <div class="scrollable-x">
+        <div class="scrollable-x" id="scrollRate">
             <div class="laundry-list">
                 {#if allRates.length > 0}
                     {#each allRates as rate}

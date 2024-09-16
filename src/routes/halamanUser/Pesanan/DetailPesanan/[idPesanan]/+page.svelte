@@ -173,7 +173,7 @@
 
 <svelte:head>
 	<title>LaundryLab</title>
-	<meta name="description" content="Halaman Detail" />
+	<meta name="description" content="Halaman Detail Pesanan" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 

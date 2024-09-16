@@ -637,8 +637,7 @@
             <div class="card-info-border centered-items">
               <div class="card-row centered-items">
                 <div>
-                  <div class="card-title centered-items">Detail Pendapatan</div>
-                  <div class="card-border centered-items"></div>
+                  <div class="centered-items"></div>
                   {#each formattedOrders as { tanggal, items, berat, totalBayar }}
                       <div class="card-row-spaceless centered-items">
                         <div>
@@ -654,5 +653,7 @@
             </div>
         {/if}
     </div>
+    <br><br>
+    <br><br>
     <AdminNavbar />
 </div>

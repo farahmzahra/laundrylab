@@ -25,12 +25,12 @@
         
       {/if}
       {#if isPassword == "true"}
-          <img src="{eye_symbol}" class="icon-eye" on:click={()=> {
+          <img src="{eye_symbol}" class="icon-eye" alt="Eye" on:click={()=> {
             isPassword = "false"
           }}>
           <input type="password" bind:value={value} placeholder={placeholder} style={style} />
       {:else}
-          <img src="{hidden_symbol}" class="icon-eye" on:click={()=> {
+          <img src="{hidden_symbol}" class="icon-eye" alt="Eye" on:click={()=> {
             isPassword = "true"
           }}>
           <input type="text" bind:value={value} placeholder={placeholder} style={style} />

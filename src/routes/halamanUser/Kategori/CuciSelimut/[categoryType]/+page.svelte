@@ -94,14 +94,13 @@
 
 <svelte:head>
 	<title>LaundryLab</title>
-	<meta name="description" content="" />
+	<meta name="description" content="Halaman Kategori Selimut" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
 <div class="card-container">
 	<div class="header">
-		<img src="{logo}" class="logoUser">
-		<img src="{profil}">
+		<img src="{logo}" class="logoUser" alt="Logo">
 	</div>
 	<div class="scrollable">
 		<br>
@@ -111,37 +110,37 @@
 		<div class="scrollable-x">
             <div class="card-row">
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciKering/cuci_kering" on:click={(event) => handleClickKat(event, 'cuci_kering')} class="category-card">
-                    <img src="{category1}" class="img-icon-cat">
+                    <img src="{category1}" class="img-icon-cat" alt="kategori1">
                     <div>
                         <div class="card-caption">Cuci Kering</div>
                     </div>
                 </a>
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciSetrikaReguler/cuci_setrika_reguler" on:click={(event) => handleClickKat(event, 'cuci_setrika_reguler')} class="category-card">
-                    <img src="{category2}" class="img-icon-cat">
+                    <img src="{category2}" class="img-icon-cat" alt="kategori2">
                     <div>
                         <div class="card-caption">Cuci Setrika Reguler</div>
                     </div>
                 </a>
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciSetrikaKilat/cuci_setrika_kilat" on:click={(event) => handleClickKat(event, 'cuci_setrika_kilat')} class="category-card">
-                    <img src="{category3}" class="img-icon-cat">
+                    <img src="{category3}" class="img-icon-cat"alt="kategori3">
                     <div>
                         <div class="card-caption">Cuci Setrika Kilat</div>
                     </div>
                 </a>
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciSelimut/cuci_bedcover_selimut" on:click={(event) => handleClickKat(event, 'cuci_bedcover_selimut')} class="category-card">
-                    <img src="{category4}" class="img-icon-cat">
+                    <img src="{category4}" class="img-icon-cat"alt="kategori4">
                     <div>
                         <div class="card-caption">Cuci Bed Cover dan Selimut</div>
                     </div>
                 </a>
                 <a sveltekit:prefetch href="/halamanUser/Kategori/Setrika/setrika" on:click={(event) => handleClickKat(event, 'setrika')} class="category-card">
-                    <img src="{category5}" class="img-icon-cat">
+                    <img src="{category5}" class="img-icon-cat"alt="kategori5">
                     <div>
                         <div class="card-caption">Setrika</div>
                     </div>
                 </a>
                 <a sveltekit:prefetch href="/halamanUser/Kategori/CuciLainnya/lainnya" on:click={(event) => handleClickKat(event, 'lainnya')} class="category-card">
-                    <img src="{category6}" class="img-icon-cat">
+                    <img src="{category6}" class="img-icon-cat"alt="kategori6">
                     <div>
                         <div class="card-caption">Cuci Lainnya</div>
                     </div>
@@ -152,7 +151,7 @@
 	        {#each allLaundries as laundry}
 	            <div class="card-info-border">
 					<div class="card-row-spaceless">
-						<img src={laundry.profilPict} class="img-icon-prof" style="margin-right: 10px;">
+						<img src={laundry.profilPict} class="img-icon-prof" style="margin-right: 10px;" alt="pict">
 						<a sveltekit:prefetch href="{`/halamanUser/Beranda/DetailLaundry/${laundry.email}`}" on:click={(event) => handleClick(event, laundry.email)}>
 							<div>
 								<div class="card-title">{laundry.namaLaundry}</div>
@@ -166,7 +165,7 @@
 								</div>
 							</div>
 						</a>
-						<img src="{line}" class="spacing">
+						<img src="{line}" class="spacing" alt="space">
 						<div>
 							<div class="card-title">Cuci Bed Cover</div>
 							<div class="card-title">& Selimut</div>

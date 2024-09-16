@@ -219,16 +219,15 @@
 
 <svelte:head>
 	<title>LaundryLab</title>
-	<meta name="description" content="" />
+	<meta name="description" content="Halaman Detail Pesanan" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
 <div class="card-container">
 	<div class="header">
 		<a href="/halamanPetugas/Pesanan/">
-			<img src="{logo}" class="logo">
+			<img src="{logo}" class="logo" alt="Logo">
 		</a>
-		<img src="{profil}">
 	</div><br>
 	<div class="card-row centered-items">
 		<div class="title">Detail Pesanan</div>

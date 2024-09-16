@@ -14,6 +14,8 @@
 	import BottomButton from '$lib/components/bottomButton.svelte';
 	import Button from '$lib/components/button.svelte';
 	import Mapbox from '$lib/components/popup/Admin/Mapbox.svelte';
+	import arrowLeft from '$lib/images/left-arrow.png';
+    import arrowRight from '$lib/images/right-arrow.png';
 	import TambahPesananPopup from '$lib/components/popup/Petugas/TambahPesananPopup.svelte';
 	import ApiController from '../../ApiController.js';
 	import '@fontsource/montserrat';
@@ -29,6 +31,10 @@
   	let payMethod = [];
   	let hargaPerCategory = [];
   	let category = [];
+  	let searchName = '';
+    let searchDate = '';
+    let searchTime = '';
+    let scrollNumber = 0;
 
   	let form = {
         nama: '',
@@ -67,6 +73,35 @@
         const token = localStorage.getItem("token");
         const emailStored = localStorage.getItem("email");
 
+        // try {
+        //     const response = await ApiController({ 
+        //         method: 'GET', 
+        //         endpoint: `getPesananByEmailPetugas/${emailStored}`,
+        //         token: token
+        //     });
+
+        //     if (response && response.data && response.data.success) {
+        //         order = response.data.orders;
+             //     for (let i = 0; i < order.length; i++) {
+	            //     const emailUser = order[i].emailUser;
+	            //     getLaundryDetails(emailUser, i);
+	            //     if (order[i].emailLaundry) {
+	            //         getAdminDetails(order[i].emailLaundry, i);
+	            //     }
+	            //     console.log(order);
+
+	            //     if (order[i].alamatUser) {
+             //            locationForm.alamatUser = order[i].alamatUser;
+             //            console.log(locationForm.alamatUser);
+             //        }
+	            // }
+        //     } else {
+        //         console.error('Failed to fetch orders:', response ? response.data.error : 'No response from server');
+        //     }
+        // } catch (error) {
+        //     console.error('Error fetching orders:', error);
+        // }
+
         try {
             const response = await ApiController({ 
                 method: 'GET', 
@@ -76,7 +111,26 @@
 
             if (response && response.data && response.data.success) {
                 order = response.data.orders;
-                 for (let i = 0; i < order.length; i++) {
+
+                const currentDate = new Date();
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(currentDate.getMonth() - 1);
+
+                order = order.filter(pesanan => {
+                    const statusAtIndex6 = pesanan.statusPesanan[6] || {};
+                    const isActive = statusAtIndex6.active === 'true';
+                    const orderDate = new Date(`${statusAtIndex6.tanggal} ${statusAtIndex6.waktu}`);
+
+                    return !(isActive && orderDate < oneMonthAgo);
+                });
+
+                order.sort((a, b) => {
+                    const dateTimeA = new Date(`${a.statusPesanan[0]?.tanggal} ${a.statusPesanan[0]?.waktu}`);
+                    const dateTimeB = new Date(`${b.statusPesanan[0]?.tanggal} ${b.statusPesanan[0]?.waktu}`);
+                    return dateTimeB - dateTimeA;
+                });
+
+                for (let i = 0; i < order.length; i++) {
 	                const emailUser = order[i].emailUser;
 	                getLaundryDetails(emailUser, i);
 	                if (order[i].emailLaundry) {
@@ -89,6 +143,7 @@
                         console.log(locationForm.alamatUser);
                     }
 	            }
+                console.log(order);
             } else {
                 console.error('Failed to fetch orders:', response ? response.data.error : 'No response from server');
             }
@@ -445,6 +500,15 @@
             console.error('Error updating status:', error);
         }
     }
+
+    function filteredOrders() {
+        return order.filter(pesanan => {
+            const matchesName = searchName ? pesanan.laundryDetails?.nama?.toLowerCase().includes(searchName.toLowerCase()) : true;
+            const matchesDate = searchDate ? pesanan.statusPesanan.some(status => status.tanggal === searchDate) : true;
+
+            return matchesName && matchesDate && matchesTime;
+        });
+    }
 </script>
 
 <svelte:head>
@@ -465,10 +529,34 @@
 			<div class="title">Pesanan</div>
 		</div>
 		<div>
-            <input type="text" placeholder="Cari Laundry" style="width: 225px;" />
-            <input type="date" placeholder="Search by Date" style="width: 175px;" />
+            <input type="text" placeholder="Cari Pelanggan"  style="width: 225px;" />
+            <input type="date" placeholder="Search by Date" bind:value={searchDate} style="width: 175px;" />
         </div>
-		<div class="scrollable-x menu-bar">
+        <div class="card-row-end">
+            <div class="next-previous-button">
+               <img src="{arrowLeft}" class="icon-next-previous-backless" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    if (scrollNumber > 0) {
+                         scrollNumber -= 100;
+                         console.log(scrollNumber)
+                         scrollElem.scrollBy({
+                            left: -100,
+                            behavior: 'smooth'
+                        });
+                    }
+                }}>
+                <img src="{arrowRight}" class="icon-next-previous-backless" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    scrollNumber += 100;
+                    console.log(scrollNumber)
+                    scrollElem.scrollBy({
+                        left: 100,
+                        behavior: 'smooth'
+                    });
+                }}>
+            </div>
+        </div>
+		<div class="scrollable-x menu-bar" id="scroll">
 		  {#each tabs as tab}
 		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
 		      {tab}
@@ -476,100 +564,67 @@
 		  {/each}
 		</div>
 		<div class="content">
-		  {#each order as pesanan}
-	            {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
-<!--                     <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[0].tanggal}</div>
-                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[0].waktu}</div>
-                            </div>
-                        </div>
-                    </div> -->
-                    {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
-                            </div>
-                        </div>
+			{#if searchName == "" && searchDate == "" && searchTime == ""}
+			  {#each order as pesanan}
+		            {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
+	<!--                     <div class="card-info-border">
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[0].tanggal}</div>
+	                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[0].waktu}</div>
+	                            </div>
+	                        </div>
+	                    </div> -->
+	                    {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
+	                    <div class="card-info-border">
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+	                            </div>
+	                        </div>
 
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
-                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={() => updateJemputPesanan(pesanan)}>Jemput</button>
-                            </div>
-                        </div>
-                    </div>
-	                {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
-                    <div class="card-info-border">
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
-                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
-                            </div>
-                            <div class="space-style">
-                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
-                            </div>
-                        </div>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={openAddPesananPopup(pesanan.idPesanan, pesanan.emailPetugas)}>Tiba Di Lokasi</button>
-                            </div>
-                        </div>
-                    </div>
-	                {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
-                    <div class="card-info-border">
-                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={() => updateJemputPesanan(pesanan)}>Jemput</button>
+	                            </div>
+	                        </div>
+	                    </div>
+		                {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
+	                    <div class="card-info-border">
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
 	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
 	                            </div>
 	                            <div class="space-style">
-	                                <div class="status-text" style="text-align: right;">Diproses</div>
+	                                <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
 	                            </div>
 	                        </div>
 	                        <div class="card-row-spaceless">
@@ -579,29 +634,219 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
-                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
 	                            </div>
 	                        </div>
-	                    </a>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        </div>
-                    </div>
-                {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
-                    <div class="card-info-border">
-                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={openAddPesananPopup(pesanan.idPesanan, pesanan.emailPetugas)}>Tiba Di Lokasi</button>
+	                            </div>
+	                        </div>
+	                    </div>
+		                {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Diproses</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        </div>
+	                    </div>
+	                {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={updatePerluDiantar(pesanan.idPesanan)}>Antar Kembali</button>
+	                            </div>
+	                        </div>
+	                    </div>
+	                {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={updateSedangDiantar(pesanan.idPesanan)}>Pesanan Selesai</button>
+	                            </div>
+	                        </div>
+	                    </div>
+	                {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Selesai</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        </div>
+	                    </div>
+		            {/if}
+	            {/each}
+	        {:else}
+	        	{#each filteredOrders() as pesanan}
+		            {#if pesanan.statusPesanan[0].status === 'menunggu_konfirmasi' && activeTab === 'Menunggu Konfirmasi' && pesanan.statusPesanan[0].active === 'true' }
+	<!--                     <div class="card-info-border">
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
 	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
 	                            </div>
 	                            <div class="space-style">
-	                                <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+	                                <div class="status-text" style="text-align: right;">Menunggu Konfirmasi</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: left;">Tanggal Pemesanan: {pesanan.statusPesanan[0].tanggal}</div>
+	                                <div class="card-caption" style="text-align: left;">Waktu Pemesanan: {pesanan.statusPesanan[0].waktu}</div>
+	                            </div>
+	                        </div>
+	                    </div> -->
+	                    {:else if pesanan.statusPesanan[1].status === 'menunggu_dijemput' && activeTab === 'Menunggu Dijemput' && pesanan.statusPesanan[1].active === 'true' }
+	                    <div class="card-info-border">
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="status-text" style="text-align: right;">Menunggu Dijemput</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+	                            </div>
+	                        </div>
+
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Waktu Menunggu Penjemputan: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[1].tanggal} |  {pesanan.statusPesanan[1].waktu}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+	                            </div>
+	                        </div>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={() => updateJemputPesanan(pesanan)}>Jemput</button>
+	                            </div>
+	                        </div>
+	                    </div>
+		                {:else if pesanan.statusPesanan[2].status === 'sedang_dijemput' && activeTab === 'Sedang Dijemput' && pesanan.statusPesanan[2].active === 'true' }
+	                    <div class="card-info-border">
+	                        <div class="card-row-spaceless">
+	                            <div class="space-style">
+	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+	                            </div>
+	                            <div class="space-style">
+	                                <div class="status-text" style="text-align: right;">Sedang Dijemput</div>
 	                            </div>
 	                        </div>
 	                        <div class="card-row-spaceless">
@@ -611,92 +856,159 @@
 	                        </div>
 	                        <div class="card-row-spaceless">
 	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
-                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Menjemput: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[2].tanggal} | {pesanan.statusPesanan[2].waktu}</div>
 	                            </div>
 	                            <div class="space-style">
 	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
 	                            </div>
 	                        </div>
-	                    </a>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={updatePerluDiantar(pesanan.idPesanan)}>Antar Kembali</button>
-                            </div>
-                        </div>
-                    </div>
-                {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
-                    <div class="card-info-border">
-                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
 	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-	                            </div>
-	                            <div class="space-style">
-	                                <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={openAddPesananPopup(pesanan.idPesanan, pesanan.emailPetugas)}>Tiba Di Lokasi</button>
 	                            </div>
 	                        </div>
+	                    </div>
+		                {:else if pesanan.statusPesanan[3].status === 'diproses' && activeTab === 'Diproses' && pesanan.statusPesanan[3].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Diproses</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Diproses: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[3].tanggal} | {pesanan.statusPesanan[3].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
 	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        </div>
+	                    </div>
+	                {:else if pesanan.statusPesanan[4].status === 'perlu_diantar' && activeTab === 'Perlu Diantar' && pesanan.statusPesanan[4].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Perlu Diantar</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Menunggu Diantar: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[4].tanggal} | {pesanan.statusPesanan[4].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
+	                        <div class="card-row-spaceless">
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={updatePerluDiantar(pesanan.idPesanan)}>Antar Kembali</button>
 	                            </div>
 	                        </div>
+	                    </div>
+	                {:else if pesanan.statusPesanan[5].status === 'sedang_diantar' && activeTab === 'Sedang Diantar' && pesanan.statusPesanan[5].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Sedang Diantar</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
+	                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
 	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Petugas Mengantar: </div>
-                                	<div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[5].tanggal} | {pesanan.statusPesanan[5].waktu}</div>
-	                            </div>
-	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
+	                        	<div class="space-style" style="text-align: right;">
+	                                <button type="button" on:click={updateSedangDiantar(pesanan.idPesanan)}>Pesanan Selesai</button>
 	                            </div>
 	                        </div>
-	                    </a>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        	<div class="space-style" style="text-align: right;">
-                                <button type="button" on:click={updateSedangDiantar(pesanan.idPesanan)}>Pesanan Selesai</button>
-                            </div>
-                        </div>
-                    </div>
-                {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
-                    <div class="card-info-border">
-                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+	                    </div>
+	                {:else if pesanan.statusPesanan[6].status === 'selesai' && activeTab === 'Selesai' && pesanan.statusPesanan[6].active === 'true' }
+	                    <div class="card-info-border">
+	                        <a sveltekit:prefetch href="{`/halamanPetugas/Pesanan/DetailPesanan/${pesanan.idPesanan}`}" on:click={(event) => handleClick(event, pesanan.idPesanan)}>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="status-text" style="text-align: right;">Selesai</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                        <div class="card-row-spaceless">
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
+	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
+		                            </div>
+		                            <div class="space-style">
+		                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
+		                            </div>
+		                        </div>
+		                    </a>
 	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-title">{pesanan.laundryDetails?.nama || 'Loading...'}</div>
-	                            </div>
-	                            <div class="space-style">
-	                                <div class="status-text" style="text-align: right;">Selesai</div>
-	                            </div>
+	                        	<div class="space-style" style="text-align: left;">
+	                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
+	                        	</div>
 	                        </div>
-	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-title-smaller">Pesanan dari {pesanan.adminDetails?.namaLaundry || 'Loading...'}</div>
-	                            </div>
-	                        </div>
-	                        <div class="card-row-spaceless">
-	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">Tanggal Pesanan Selesai: </div>
-                                <div class="card-caption" style="text-align: left; font-weight: bold; color: #2a6c72;">{pesanan.statusPesanan[6].tanggal} | {pesanan.statusPesanan[6].waktu}</div>
-	                            </div>
-	                            <div class="space-style">
-	                                <div class="card-caption" style="text-align: right;">Petugas: {dataPetugas[0]?.nama_petugas || 'Loading...'}</div>
-	                            </div>
-	                        </div>
-	                    </a>
-                        <div class="card-row-spaceless">
-                        	<div class="space-style" style="text-align: left;">
-                        		<a href="javascript:void(0)" on:click={() => handleAddressMapClick(pesanan.emailUser, pesanan.alamatUser)}>Lihat Alamat</a>
-                        	</div>
-                        </div>
-                    </div>
-	            {/if}
-            {/each}
+	                    </div>
+		            {/if}
+	            {/each}
+	        {/if}
 		</div>
 	</div>
 	<br><br><br>

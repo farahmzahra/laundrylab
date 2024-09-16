@@ -12,6 +12,8 @@
 	import plus from '$lib/images/plus.png';
 	import star from '$lib/images/star-review.png';
 	import BottomButton from '$lib/components/bottomButton.svelte';
+    import arrowLeft from '$lib/images/left-arrow.png';
+    import arrowRight from '$lib/images/right-arrow.png';
 	import Button from '$lib/components/button.svelte';
 	import ApiController from '../../ApiController.js';
 	import AdminNavbar from '../../AdminNavbar.svelte';
@@ -25,6 +27,7 @@
     let searchName = '';
     let searchDate = '';
     let searchTime = '';
+    let scrollNumber = 0;
 
   	let form = {
         nama: '',
@@ -329,7 +332,31 @@
             <input type="text" placeholder="Cari Pelanggan" bind:value={searchName} style="width: 225px;" />
             <input type="date" placeholder="Search by Date" bind:value={searchDate} style="width: 175px;" />
         </div>
-		<div class="scrollable-x menu-bar">
+        <div class="card-row-end">
+            <div class="next-previous-button">
+               <img src="{arrowLeft}" class="icon-next-previous-backless" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    if (scrollNumber > 0) {
+                         scrollNumber -= 100;
+                         console.log(scrollNumber)
+                         scrollElem.scrollBy({
+                            left: -100,
+                            behavior: 'smooth'
+                        });
+                    }
+                }}>
+                <img src="{arrowRight}" class="icon-next-previous-backless" on:click={() => {
+                    let scrollElem = document.getElementById("scroll");
+                    scrollNumber += 100;
+                    console.log(scrollNumber)
+                    scrollElem.scrollBy({
+                        left: 100,
+                        behavior: 'smooth'
+                    });
+                }}>
+            </div>
+        </div>
+		<div class="scrollable-x menu-bar" id="scroll">
 		  {#each tabs as tab}
 		    <div class="tab {activeTab === tab ? 'active' : ''}" on:click={() => activeTab = tab}>
 		      {tab}
